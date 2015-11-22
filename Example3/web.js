@@ -7,7 +7,7 @@ server = http.createServer(function (req, res) {
 	res.end("Hello World!");
 	console.log("HTTP response sent");
 });
-var part = 3000;
+var port = 3000;
 server.listen(port, function () {
 	console.log("Server listening on port " + port);
-})
+});
