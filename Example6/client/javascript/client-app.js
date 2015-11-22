@@ -10,10 +10,15 @@ var main = function () {
 			todolist.appendChild(li);
 		}
 	};
-	$.getJSON("../todos", addTodosToList)
-		.error(function (jqXHR, textStatus, errorThrown) {
-			console.log("error " + textStatus);
-			console.log("incoming Text " + jqXHR.responseText);
-		});
+//	setInterval(function () {
+//  note: to use setInterval() you have to implement a mechanisms
+//  that checks which todos are already shown to the client
+	
+		$.getJSON("../todos", addTodosToList)
+			.error(function (jqXHR, textStatus, errorThrown) {
+				console.log("error " + textStatus);
+				console.log("incoming Text " + jqXHR.responseText);
+			});
+//	}, 2000);
 };
 $(document).ready(main);
