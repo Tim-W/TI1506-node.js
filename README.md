@@ -1,3 +1,3 @@
 # TI1506-node.js
 
-Shown here are the six code examples of the node.js lecture.
+Shown here are the six code examples of the node.js lecture, including the setup files for [Visual Studio Code](https://code.visualstudio.com/).
