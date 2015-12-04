@@ -1,0 +1,25 @@
+{
+  "name": "justdoit",
+  "version": "1.0.0",
+  "description": "A todo application",
+  "main": "index.js",
+  "scripts": {
+    "test": "dunno"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tim-W/TI1506-node.js.git"
+  },
+  "keywords": [
+    "Todo"
+  ],
+  "author": "Tim Wissel, Rens Heddes",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tim-W/TI1506-node.js/issues"
+  },
+  "homepage": "https://github.com/Tim-W/TI1506-node.js#readme",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}
