@@ -33,6 +33,7 @@ var main = function () {
         });
 
         ev.preventDefault();
+        document.getElementById('todoFormText').value = "";
     });
 };
 
