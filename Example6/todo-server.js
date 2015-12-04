@@ -39,3 +39,15 @@ app.get("/addtodo", function (req, res) {
 		res.end("Error: missing message parameter");
 	}
 });
+
+app.get("/updatetodo", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query['id'] && todos[query['id']] && query['message']) {
+        todos[query['id']] = query['message'];
+        console.log('updated' + query['id']);
+        res.end('Todo updated successfully');
+    } else {
+        res.end('Error: todo not found');
+    }
+});
