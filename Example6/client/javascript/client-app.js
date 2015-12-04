@@ -2,7 +2,7 @@ var main = function () {
     "use strict";
 
     //Load items on page load
-    var newTodoForm, updateForm;
+    var newTodoForm, updateForm, todoFormText;
     getItems();
 
     //On form submit, post the new item
@@ -18,6 +18,7 @@ var main = function () {
         });
 
         ev.preventDefault();
+        document.getElementById('todoFormText').value = "";
     });
 
     updateForm = $('#updateForm');
