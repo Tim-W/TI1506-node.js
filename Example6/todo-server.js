@@ -22,11 +22,12 @@ app.get("/todos", function (req, res) {
 
 //add todo to the server
 app.get("/addtodo", function (req, res) {
-	var url_parts = url.parse(req.url, true);
+	var tx;
+    var url_parts = url.parse(req.url, true);
 	var query = url_parts.query;
 	
 	if(query["message"]!==undefined) {
-		var tx = { message : query["message"], 
+		tx = { message : query["message"],
 			type: query["type"],
 			deadline: query["deadline"]
 		};
