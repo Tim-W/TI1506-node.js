@@ -2,14 +2,30 @@ var main = function () {
     "use strict";
 
     //Load items on page load
+    var newTodoForm, updateForm;
     getItems();
 
     //On form submit, post the new item
-    $('#newTodoForm').submit(function (ev) {
+    newTodoForm = $('#newTodoForm');
+    newTodoForm.submit(function (ev) {
         $.ajax({
-            type: form.attr('method'),
-            url: form.attr('action'),
-            data: form.serialize('message'),
+            type: newTodoForm.attr('method'),
+            url: newTodoForm.attr('action'),
+            data: newTodoForm.serialize(),
+            success: function (data) {
+                getItems();
+            }
+        });
+
+        ev.preventDefault();
+    });
+
+    updateForm = $('#updateForm');
+    updateForm.submit(function (ev) {
+        $.ajax({
+            type: updateForm.attr('method'),
+            url: updateForm.attr('action'),
+            data: updateForm.serialize('message'),
             success: function (data) {
                 getItems();
             }
@@ -20,12 +36,14 @@ var main = function () {
 };
 
 function addTodosToList (todos) {
+    var li;
+    var todolist;
     console.log("Loading todos from server");
-    var todolist = document.getElementById("todo-list");
+    todolist = document.getElementById("todo-list");
     todolist.innerHTML = "";
     for (var key in todos) {
-        var li = document.createElement("li");
-        li.innerHTML = "TODO: " + todos[key].message;
+        li = document.createElement("li");
+        li.innerHTML = "TODO: " + todos[key].message + "<button onclick='updateTodo()'></button>";
         todolist.appendChild(li);
     }
 }
