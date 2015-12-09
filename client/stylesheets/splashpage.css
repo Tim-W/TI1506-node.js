@@ -1,0 +1,77 @@
+div.logo {
+    padding: 10px 10px 10px 10px;
+}
+
+div.logo img {
+    vertical-align:middle;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2em;
+    margin: 0 auto;
+    padding: 0 0 5px 20px;
+    display:inline-block;
+}
+
+div.splashBlock {
+    background: #4DD7FA;
+    width: 100%;
+    text-align: center;
+    padding-top: 20px;
+    margin-top: 5%;
+}
+
+.signInButton {
+    margin-top: 10%;
+    margin-right: 60px;
+    float: right;
+    background-color:#3d8bf7;
+    -moz-border-radius:28px;
+    -webkit-border-radius:28px;
+    border-radius:28px;
+    border:1px solid #050f06;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Verdana;
+    font-size:17px;
+    font-weight:bold;
+    padding:16px 31px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #2f6627;
+}
+.signInButton:hover {
+    background-color:#2e5cab;
+}
+.signInButton:active {
+    position:relative;
+    top:2px;
+}
+
+.signUpButton {
+    margin-top: 10%;
+    margin-right: 40px;
+    float: right;
+    background-color:#ffb253;
+    -moz-border-radius:28px;
+    -webkit-border-radius:28px;
+    border-radius:28px;
+    border:1px solid #050f06;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Verdana;
+    font-size:17px;
+    font-weight:bold;
+    padding:16px 31px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #2f6627;
+}
+.signUpButton:hover {
+    background-color:#d68227;
+}
+.signUpButton:active {
+    position:relative;
+    top:2px;
+}
