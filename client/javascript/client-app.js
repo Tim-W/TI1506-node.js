@@ -1,6 +1,8 @@
 var main = function () {
     "use strict";
 
+    var currentlySelectedList = 0;
+
     //Load items on page load
     var newTodoForm, updateForm, todoFormText;
     retrieveData();
@@ -11,7 +13,10 @@ var main = function () {
         $.ajax({
             type: newTodoForm.attr('method'),
             url: newTodoForm.attr('action'),
-            data: newTodoForm.serialize(),
+            data: {
+                description: $('#todoFormText').val(),
+                listId: currentlySelectedList
+            },
             success: function (data) {
                 retrieveData();
             }
@@ -35,27 +40,42 @@ var main = function () {
         ev.preventDefault();
         document.getElementById('todoFormText').value = "";
     });
-};
 
-function addTodosToList (todos) {
-    var li;
-    var todolist;
-    console.log("Loading todos from server");
-    todolist = document.getElementById("todo-list");
-    todolist.innerHTML = "";
-    for (var key in todos) {
-        li = document.createElement("li");
-        li.innerHTML = "TODO: " + todos[key].message + "<button onclick='updateTodo()'></button>";
-        todolist.appendChild(li);
+    function addTodosToList(todoListList) {
+        var li;
+        var todoList, listList;
+        console.log("Loading todos from server");
+        listList = document.getElementById("list-list");
+        listList.innerHTML = "";
+        for (var key in todoListList) {
+            li = document.createElement("li");
+            li.innerHTML = todoListList[key].listName;
+            listList.appendChild(li);
+        }
+
+        todoList = document.getElementById("todo-list");
+        todoList.innerHTML = "";
+        var items = todoListList[currentlySelectedList].items;
+
+        for (var key in items) {
+            li = document.createElement("li");
+            li.innerHTML = items[key]["description"];
+            todoList.appendChild(li);
+        }
     }
-}
 
-function retrieveData() {
-    $.getJSON("../todos", addTodosToList)
-        .error(function (jqXHR, textStatus, errorThrown) {
-            console.log("error " + textStatus);
-            console.log("incoming Text " + jqXHR.responseText);
-        });
-}
+    function retrieveData() {
+        $.getJSON("../todos", addTodosToList)
+            .error(function (jqXHR, textStatus) {
+                console.log("error " + textStatus);
+                console.log("incoming Text " + jqXHR.responseText);
+            });
+    }
+
+    function selectList(id) {
+        currentlySelectedList = id;
+        retrieveData();
+    }
+};
 
 $(document).ready(main);
