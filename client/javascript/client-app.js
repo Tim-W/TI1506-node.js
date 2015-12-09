@@ -3,7 +3,7 @@ var main = function () {
 
     //Load items on page load
     var newTodoForm, updateForm, todoFormText;
-    getItems();
+    retrieveData();
 
     //On form submit, post the new item
     newTodoForm = $('#newTodoForm');
@@ -13,7 +13,7 @@ var main = function () {
             url: newTodoForm.attr('action'),
             data: newTodoForm.serialize(),
             success: function (data) {
-                getItems();
+                retrieveData();
             }
         });
 
@@ -28,7 +28,7 @@ var main = function () {
             url: updateForm.attr('action'),
             data: updateForm.serialize('message'),
             success: function (data) {
-                getItems();
+                retrieveData();
             }
         });
 
@@ -50,7 +50,7 @@ function addTodosToList (todos) {
     }
 }
 
-function getItems() {
+function retrieveData() {
     $.getJSON("../todos", addTodosToList)
         .error(function (jqXHR, textStatus, errorThrown) {
             console.log("error " + textStatus);

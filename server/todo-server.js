@@ -8,46 +8,226 @@ var app = express();
 app.use(express.static(__dirname + "/../client"));
 http.createServer(app).listen(port);
 
-var todos = [];
-var t1 = { message : "Maths homework due", type  : 1, deadline : "12/12/2015"};
-var t2 = { message : "English homework due", type : 3, deadline : "20/12/2015"};
-todos.push(t1);
-todos.push(t2);
+/**
+ * A list of TodoItems.
+ * @param listName {String}
+ * @param items {Array}
+ * @constructor
+ */
+TodoList = function (listName, items) {
+    this.listName = listName;
+    if(items) {
+        this.items = items;
+    } else {
+        this.items = [];
+    }
+};
+
+TodoList.prototype.getItems = function () {
+    return this.items;
+};
+TodoList.prototype.getListName = function () {
+    return this.listName;
+};
+TodoList.prototype.setListName = function (listName) {
+    return this.listName = listName;
+};
+TodoList.prototype.getItems = function (items) {
+    return this.items = items;
+};
+/**
+ * Add an item to the list
+ * @param todoItem {TodoItem}
+ * @returns {*|Number}
+ */
+TodoList.prototype.addItem = function (todoItem) {
+    return this.items.push(todoItem);
+};
+/**
+ * Get an item from the list
+ * @param index {Number}
+ * @returns {TodoItem}
+ */
+TodoList.prototype.getItem = function (index) {
+    return this.items[index];
+};
+/**
+ * Remove an item from the list
+ * @param index
+ * @returns {*|Array.<TodoItem>}
+ */
+TodoList.prototype.delItem = function (index) {
+    return this.items.splice(index, 1);
+};
+/**
+ * Update an item from the list
+ * @param index {Number}
+ * @param todoItem {TodoItem}
+ * @returns {*}
+ */
+TodoList.prototype.updateItem = function (index, todoItem) {
+    return this.items[index] = todoItem;
+};
+
+/**
+ * A TodoItem, part of a TodoList
+ * @param description {String}
+ * @param priority {Boolean}
+ * @param date {Date}
+ * @param done {Boolean}
+ * @constructor
+ */
+TodoItem = function (description, priority, date, done) {
+    this.description = description;
+    if(priority) {
+        this.priority = priority;
+    } else {
+        this.priority = false;
+    }
+    if(date) {
+        this.date = date;
+    }
+    if(done) {
+        this.done = done;
+    } else {
+        this.done = false;
+    }
+};
+
+TodoItem.prototype.getDescription = function () {
+    return this.description;
+};
+TodoItem.prototype.getPriority = function () {
+    return this.priority;
+};
+TodoItem.prototype.getDate = function () {
+    return this.date;
+};
+TodoItem.prototype.getDone = function () {
+    return this.done;
+};
+
+TodoItem.prototype.setDescription = function (description) {
+    return this.description = description;
+};
+TodoItem.prototype.setPriority = function (priority) {
+    return this.priority = priority;
+};
+TodoItem.prototype.setDate = function (date) {
+    return this.date = date;
+};
+TodoItem.prototype.setDone = function (done) {
+    return this.done = done;
+};
+
+var exampleTodos = [
+    new TodoItem('Description', false, new Date(), false),
+    new TodoItem('Description', false, new Date(), false),
+    new TodoItem('Description', true, new Date(), true)
+];
+var exampleList = new TodoList('Inbox', exampleTodos);
+var todoListList = [exampleList];
 
 //clients requests todos
 app.get("/todos", function (req, res) {
 	console.log("todos requested!");
-	res.json(todos);
+	res.json(todoListList);
 });
 
-//add todo to the server
+//add item
 app.get("/addtodo", function (req, res) {
-	var tx;
-    var url_parts = url.parse(req.url, true);
-	var query = url_parts.query;
-	
-	if(query["message"]!==undefined) {
-		tx = { message : query["message"],
-			type: query["type"],
-			deadline: query["deadline"]
-		};
-		todos.push(tx);
-		console.log("Added " + tx.message);
-		res.end("Todo added successfully");
-	}
-	else {
-		res.end("Error: missing message parameter");
-	}
+    var query = url.parse(req.url, true).query;
+
+    if(query["listId"] && query["description"] && todoListList[query["listId"]]) {
+        var item = new TodoItem(query["description"], query["priority"], query["date"], query["done"]);
+        todoListList[query["listId"]].addItem(item);
+        res.end("success");
+    } else {
+        res.end("error");
+    }
 });
 
+//remove item
+app.get("/gettodo", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query["listId"] && query["todoId"] && todoListList[query["listId"]].getItem(query["todoId"])) {
+        var item = todoListList[query["listId"]].getItem(query["todoId"]);
+        res.json(item);
+    } else {
+        res.end("error");
+    }
+});
+
+//update item
 app.get("/updatetodo", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if(query['id'] && todos[query['id']] && query['message']) {
-        todos[query['id']] = query['message'];
-        console.log('updated' + query['id']);
-        res.end('Todo updated successfully');
+    if(query["listId"] && query["todoId"] && query["description"] && todoListList[query["listId"]].getItem(query["todoId"])) {
+        var item = new TodoItem(query["description"], query["priority"], query["date"], query["done"]);
+        todoListList[query["listId"]].updateItem(query["todoId"], item);
+        res.end("success");
     } else {
-        res.end('Error: todo not found');
+        res.end("error");
+    }
+});
+
+//remove item
+app.get("/removetodo", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query["listId"] && query["todoId"] && todoListList[query["listId"]].getItem(query["todoId"])) {
+        todoListList[query["listId"]].delItem(query["todoId"]);
+        res.end("success");
+    } else {
+        res.end("error");
+    }
+});
+
+//add list
+app.get("/addlist", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query["name"]) {
+        var list = new TodoList(query["name"], []);
+        todoListList.push(list);
+        res.end("success");
+    } else {
+        res.end("error");
+    }
+});
+
+//get list
+app.get("/getlist", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query["listId"] && todoListList[query["listId"]]) {
+        res.json(todoListList[query["listId"]]);
+    } else {
+        res.end("error");
+    }
+});
+
+//update list
+app.get("/updatelist", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query["listId"] && todoListList[query["listId"]] && query["name"]) {
+        todoListList[query["listId"]].setListName(query["name"]);
+        res.end("success");
+    } else {
+        res.end("error");
+    }
+});
+
+//remove list
+app.get("/removelist", function (req, res) {
+    var query = url.parse(req.url, true).query;
+
+    if(query["listId"] && todoListList[query["listId"]]) {
+        todoListList.splice(query["listId"], 1);
+        res.end("success");
+    } else {
+        res.end("error");
     }
 });
