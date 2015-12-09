@@ -129,8 +129,7 @@ var exampleList = new TodoList('Inbox', exampleTodos);
 var todoListList = [exampleList];
 
 //clients requests todos
-app.get("/todos", function (req, res) {
-	console.log("todos requested!");
+app.get("/getlists", function (req, res) {
 	res.json(todoListList);
 });
 

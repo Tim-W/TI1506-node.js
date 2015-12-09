@@ -11,7 +11,6 @@ var main = function () {
     newTodoForm = $('#newTodoForm');
     newTodoForm.submit(function (ev) {
         $.ajax({
-            type: newTodoForm.attr('method'),
             url: newTodoForm.attr('action'),
             data: {
                 description: $('#todoFormText').val(),
@@ -24,6 +23,21 @@ var main = function () {
 
         ev.preventDefault();
         document.getElementById('todoFormText').value = "";
+    });
+
+    //Adds a new list
+    var addListForm = $('#addListForm');
+    addListForm.submit(function (event) {
+        $.ajax({
+            url: addListForm.attr('action'),
+            data: addListForm.serialize(),
+            success: function () {
+                retrieveData();
+            }
+        });
+
+        event.preventDefault();
+        document.getElementById('listName').value = "";
     });
 
     updateForm = $('#updateForm');
@@ -42,6 +56,22 @@ var main = function () {
     });
 
     function addTodosToList(todoListList) {
+        var li, todoList;
+        todoList = document.getElementById("todo-list");
+        todoList.innerHTML = "";
+        //Only render the items on the screen if the list actually has one or more items
+        if (todoListList && todoListList.items) {
+            var items = todoListList.items;
+
+            for (var key in items) {
+                li = document.createElement("li");
+                li.innerHTML = items[key]["description"];
+                todoList.appendChild(li);
+            }
+        }
+    }
+
+    function addLists(todoListList) {
         var li;
         var todoList, listList;
         console.log("Loading todos from server");
@@ -49,32 +79,39 @@ var main = function () {
         listList.innerHTML = "";
         for (var key in todoListList) {
             li = document.createElement("li");
-            li.innerHTML = todoListList[key].listName;
+            li.innerHTML = "<a href='#' class='todoListTitle'>" + todoListList[key].listName + "</a>";
             listList.appendChild(li);
         }
 
-        todoList = document.getElementById("todo-list");
-        todoList.innerHTML = "";
-        var items = todoListList[currentlySelectedList].items;
-
-        for (var key in items) {
-            li = document.createElement("li");
-            li.innerHTML = items[key]["description"];
-            todoList.appendChild(li);
-        }
+        $(".todoListTitle").click(function (event) {
+            event.preventDefault();
+            currentlySelectedList = $("li").index(this);
+            retrieveData();
+            console.log($("a").index(this));
+        });
     }
 
     function retrieveData() {
-        $.getJSON("../todos", addTodosToList)
+        $.getJSON("/getlists", addLists)
             .error(function (jqXHR, textStatus) {
                 console.log("error " + textStatus);
                 console.log("incoming Text " + jqXHR.responseText);
             });
-    }
 
-    function selectList(id) {
-        currentlySelectedList = id;
-        retrieveData();
+        $.ajax({
+            dataType: "json",
+            url: '/getlist',
+            data: {
+                listId: currentlySelectedList
+            },
+            error: function (error) {
+                console.log(error);
+            },
+            success: function (data) {
+                console.log(JSON.stringify(data));
+                addTodosToList(data)
+            }
+        });
     }
 };
 
