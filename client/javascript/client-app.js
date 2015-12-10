@@ -25,21 +25,6 @@ var main = function () {
         document.getElementById('todoFormText').value = "";
     });
 
-    //Adds a new list
-    var addListForm = $('#addListForm');
-    addListForm.submit(function (event) {
-        $.ajax({
-            url: addListForm.attr('action'),
-            data: addListForm.serialize(),
-            success: function () {
-                retrieveData();
-            }
-        });
-
-        event.preventDefault();
-        document.getElementById('listName').value = "";
-    });
-
     updateForm = $('#updateForm');
     updateForm.submit(function (ev) {
         $.ajax({
@@ -147,20 +132,44 @@ var main = function () {
         for (var key in todoListList) {
             li = document.createElement("li");
             if (key == currentlySelectedList) {
-                li.innerHTML = "<a href='#' class='todoListTitle' style='background: coral'>" + todoListList[key].listName + "</a>" +
-                    " <button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
+                li.id='selectedList';
+                li.innerHTML = "<a href='#' class='todoListTitle'><span>" + todoListList[key].listName + "</span></a>" +
+                    "<button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
             } else {
-                li.innerHTML = "<a href='#' class='todoListTitle'>" + todoListList[key].listName + "</a>" +
-                    " <button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
+                li.innerHTML = "<a href='#' class='todoListTitle'><span>" + todoListList[key].listName + "</span></a>" +
+                    "<button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
             }
             listList.appendChild(li);
         }
+
+        li = document.createElement("li");
+        li.id='addList';
+        li.innerHTML = "<a href='#'><span>+ add list</span></a>";
+        listList.appendChild(li);
 
         $(".todoListTitle").click(function (event) {
             event.preventDefault();
             currentlySelectedList = $(this).parent().index();
             retrieveData();
         });
+
+        $("#addList").click(function (event) {
+            event.preventDefault();
+            var index = $(this).parent().index();
+            var newListName = prompt('New list name');
+            $.ajax({
+                url: '/addlist',
+                data: {
+                    listId: index,
+                    name: newListName
+                },
+                success: function () {
+                    retrieveData();
+                }
+            });
+            event.preventDefault();
+        });
+
 
         $(".editList").click(function (event) {
             event.preventDefault();
@@ -177,6 +186,7 @@ var main = function () {
                 }
             });
         });
+
 
         $(".removeList").click(function (event) {
             event.preventDefault();
