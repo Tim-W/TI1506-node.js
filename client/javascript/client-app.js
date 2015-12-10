@@ -13,7 +13,9 @@ var main = function () {
         $.ajax({
             url: newTodoForm.attr('action'),
             data: {
-                description: $('#todoFormText').val(),
+                description: $('input[name="description"]').val(),
+                date: new Date($('input[name="date"]').val()),
+                priority: $('input[name="priority"]:checked').val(),
                 listId: currentlySelectedList
             },
             success: function (data) {
@@ -41,8 +43,8 @@ var main = function () {
     });
 
     function addTodosToList(todoListList) {
-        var li, todoList;
-        todoList = document.getElementById("todo-list");
+        var li, todoList, date, priority;
+        todoList = document.getElementById("todoList");
         todoList.innerHTML = "";
         //Only render the items on the screen if the list actually has one or more items
         if (todoListList && todoListList.items) {
@@ -50,7 +52,7 @@ var main = function () {
 
             for (var key in items) {
                 li = document.createElement("div");
-                li.style.background = 'white';
+                li.class = "todoListItem";
                 if (items[key]["done"] === false) {
                     li.innerHTML = "<input class='done' type='checkbox'/>";
                     li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
@@ -58,8 +60,19 @@ var main = function () {
                     li.innerHTML = "<input class='done' type='checkbox' checked='checked'/>";
                     li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
                 }
-                li.innerHTML += " <button class='editTodo'>Edit</button>"
-                li.innerHTML += " <button class='removeTodo'>Remove</button>"
+                if(items[key].date != "Invalid Date"){
+                    date = new Date(items[key].date);
+                    date = date.toLocaleDateString();
+                }
+                else{
+                    date="";
+                }
+
+                priority = items[key].priority ? "priority" : "";
+                li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
+                date + "</span>  <span id='priority'>" + priority +
+                    "</span>  <button class='editTodo'>Edit</button>" +
+                    "<button class='removeTodo'>Remove</button></span>";
                 todoList.appendChild(li);
             }
 

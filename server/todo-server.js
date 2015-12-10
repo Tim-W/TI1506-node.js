@@ -121,9 +121,9 @@ TodoItem.prototype.setDone = function (done) {
 };
 
 var exampleTodos = [
-    new TodoItem('Description', false, new Date(), false),
-    new TodoItem('Description', false, new Date(), false),
-    new TodoItem('Description', true, new Date(), true)
+    new TodoItem('NKIR', false, new Date("2015-12-12"), false),
+    new TodoItem('Calculus', false, new Date("2015-12-17"), false),
+    new TodoItem('Assignment 3&4', true, new Date("2015-12-17"), true)
 ];
 var exampleList = new TodoList('Inbox', exampleTodos);
 var todoListList = [exampleList];
@@ -138,7 +138,8 @@ app.get("/addtodo", function (req, res) {
     var query = url.parse(req.url, true).query;
 
     if(query["listId"] && query["description"] && todoListList[query["listId"]]) {
-        var item = new TodoItem(query["description"], query["priority"], query["date"], query["done"]);
+        var priority = query["priority"] == "priority";
+        var item = new TodoItem(query["description"], priority, query["date"], query["done"]);
         todoListList[query["listId"]].addItem(item);
         res.end("success");
     } else {

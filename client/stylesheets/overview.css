@@ -1,7 +1,53 @@
-#content .todos {
+#content .maincontent {
     height: 1000px;
     padding-left: 220px;
     padding-right: 20px;
+}
+
+#newTodoListItemForm {
+    margin-top: 20px;
+    padding-left: 5px;
+    background: white;
+    -moz-border-radius:7px;
+    -webkit-border-radius:7px;
+    border-radius:7px;
+    border:1px solid #050f06;
+    font-size: 10px;
+    font-style: italic;
+    height: 25px;
+}
+
+#newTodoListItemForm .rightThingies{
+    float: right;
+}
+
+#todoList {
+    margin-top: 20px;
+    background: white;
+    -moz-border-radius:7px;
+    -webkit-border-radius:7px;
+    border-radius:7px;
+    border:1px solid #050f06;
+}
+
+#priority {
+    background: red;
+
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    border-radius:4px;
+}
+
+#todoList .rightThingies{
+    float: right;
+}
+
+#todoList div {
+    height: 25px;
+}
+
+#todoList div:not(:nth-last-child(1)) {
+    border-bottom: 1px solid black;
 }
 
 
