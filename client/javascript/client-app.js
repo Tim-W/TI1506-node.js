@@ -49,7 +49,8 @@ var main = function () {
             var items = todoListList.items;
 
             for (var key in items) {
-                li = document.createElement("li");
+                li = document.createElement("div");
+                li.style.background = 'white';
                 if (items[key]["done"] === false) {
                     li.innerHTML = "<input class='done' type='checkbox'/>";
                     li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
