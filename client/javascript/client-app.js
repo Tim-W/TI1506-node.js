@@ -65,9 +65,76 @@ var main = function () {
 
             for (var key in items) {
                 li = document.createElement("li");
-                li.innerHTML = items[key]["description"];
+                if (items[key]["done"] === false) {
+                    li.innerHTML = "<input class='done' type='checkbox'/>";
+                    li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
+                } else {
+                    li.innerHTML = "<input class='done' type='checkbox' checked='checked'/>";
+                    li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
+                }
+                li.innerHTML += " <button class='editTodo'>Edit</button>"
+                li.innerHTML += " <button class='removeTodo'>Remove</button>"
                 todoList.appendChild(li);
             }
+
+            $(".editTodo").click(function () {
+                var index = $(this).parent().index();
+                var newDescription = prompt("Enter new description");
+
+                $.ajax({
+                    url: '/updatetodo',
+                    data: {
+                        listId: currentlySelectedList,
+                        todoId: index,
+                        description: newDescription
+                    },
+                    success: function () {
+                        retrieveData();
+                    }
+                })
+            });
+
+            $(".removeTodo").click(function (event) {
+                var index = $(this).parent().index();
+
+                $.ajax({
+                    url: '/removetodo',
+                    data: {
+                        listId: currentlySelectedList,
+                        todoId: index
+                    },
+                    success: function () {
+                        retrieveData();
+                    }
+                })
+            });
+
+            $(".done").change(function (event) {
+                var index = $(this).parent().index();
+                var done = $(this).is(':checked');
+                //console.log({done: done});
+                var description = items[index]["description"];
+
+                console.log({
+                    listId: currentlySelectedList,
+                    todoId: index,
+                    description: description,
+                    done: done
+                });
+
+                $.ajax({
+                    url: '/updatetodo',
+                    data: {
+                        listId: currentlySelectedList,
+                        todoId: index,
+                        description: description,
+                        done: done
+                    },
+                    success: function () {
+                        retrieveData();
+                    }
+                })
+            });
         }
     }
 
@@ -79,15 +146,50 @@ var main = function () {
         listList.innerHTML = "";
         for (var key in todoListList) {
             li = document.createElement("li");
-            li.innerHTML = "<a href='#' class='todoListTitle'>" + todoListList[key].listName + "</a>";
+            if (key == currentlySelectedList) {
+                li.innerHTML = "<a href='#' class='todoListTitle' style='background: coral'>" + todoListList[key].listName + "</a>" +
+                    " <button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
+            } else {
+                li.innerHTML = "<a href='#' class='todoListTitle'>" + todoListList[key].listName + "</a>" +
+                    " <button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
+            }
             listList.appendChild(li);
         }
 
         $(".todoListTitle").click(function (event) {
             event.preventDefault();
-            currentlySelectedList = $("li").index(this);
+            currentlySelectedList = $(this).parent().index();
             retrieveData();
-            console.log($("a").index(this));
+        });
+
+        $(".editList").click(function (event) {
+            event.preventDefault();
+            var index = $(this).parent().index();
+            var newListName = prompt('Change list name');
+            $.ajax({
+                url: '/updatelist',
+                data: {
+                    listId: index,
+                    name: newListName
+                },
+                success: function () {
+                    retrieveData();
+                }
+            });
+        });
+
+        $(".removeList").click(function (event) {
+            event.preventDefault();
+            var index = $(this).parent().index();
+            $.ajax({
+                url: '/removelist',
+                data: {
+                    listId: index
+                },
+                success: function () {
+                    retrieveData();
+                }
+            });
         });
     }
 
@@ -109,7 +211,7 @@ var main = function () {
             },
             success: function (data) {
                 console.log(JSON.stringify(data));
-                addTodosToList(data)
+                addTodosToList(data);
             }
         });
     }

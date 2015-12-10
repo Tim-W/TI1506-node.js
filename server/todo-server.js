@@ -87,8 +87,8 @@ TodoItem = function (description, priority, date, done) {
     if(date) {
         this.date = date;
     }
-    if(done) {
-        this.done = done;
+    if(done == "true") {
+        this.done = true;
     } else {
         this.done = false;
     }
