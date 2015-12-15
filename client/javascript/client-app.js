@@ -77,7 +77,7 @@ var main = function () {
             }
 
             $(".editTodo").click(function () {
-                var index = $(this).parent().index();
+                var index = $(this).parent().parent().index();
                 var newDescription = prompt("Enter new description");
 
                 $.ajax({
@@ -109,7 +109,7 @@ var main = function () {
             });
 
             $(".done").change(function (event) {
-                var index = $(this).parent().index();
+                var index = $(this).parent().parent().index();
                 var done = $(this).is(':checked');
                 //console.log({done: done});
                 var description = items[index]["description"];
