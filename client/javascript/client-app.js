@@ -72,7 +72,7 @@ var main = function () {
                 li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
                     date + "</span>  <span id='priority'>" + priority +
                     "</span>  <button class='editTodo'>Edit</button>" +
-                    "<button class='removeTodo'>Remove</button></span>";
+                    "<button class='removeTodo'>Remove</button>";
                 todoList.appendChild(li);
             }
 
@@ -109,7 +109,7 @@ var main = function () {
             });
 
             $(".done").change(function (event) {
-                var index = $(this).parent().parent().index();
+                var index = $(this).parent().index();
                 var done = $(this).is(':checked');
                 //console.log({done: done});
                 var description = items[index]["description"];

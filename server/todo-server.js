@@ -117,7 +117,7 @@ TodoItem.prototype.setDate = function (date) {
     return this.date = date;
 };
 TodoItem.prototype.setDone = function (done) {
-    return this.done = done;
+    return done == "false" ? this.done = false : this.done = true;
 };
 
 var exampleTodos = [
