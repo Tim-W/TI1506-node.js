@@ -2,6 +2,27 @@
 var express = require("express");
 var url = require("url");
 var http = require("http");
+var mysql = require("mysql");
+
+//Mysql connection config
+var connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "todo"
+});
+//Connect to the database
+
+connection.connect();
+
+connection.query("SELECT * FROM User", function (err, rows) {
+    if(err) {
+        throw err;
+    }
+    console.log(rows[0]);
+});
+
+connection.end();
 
 var port = 3000;
 var app = express();
