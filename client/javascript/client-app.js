@@ -60,8 +60,14 @@ var main = function () {
                     li.innerHTML = "<input class='done' type='checkbox' checked='checked'/>";
                     li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
                 }
+                var dateStyle = "";
                 if (items[key].date != "Invalid Date") {
                     date = new Date(items[key].date);
+                    //Show a red mark if the date is overdue
+                    if ((date.getTime() - Date.now()) < 0) {
+                        dateStyle = "overdue";
+                    }
+
                     date = date.toLocaleDateString();
                 }
                 else {
@@ -69,7 +75,7 @@ var main = function () {
                 }
 
                 priority = items[key].priority ? "priority" : "";
-                li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
+                li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;" + dateStyle + "' id='" + dateStyle + "'>" +
                     date + "</span>  <span id='priority'>" + priority +
                     "</span>  <button class='editTodo'>Edit</button>" +
                     "<button class='removeTodo'>Remove</button>";
@@ -94,7 +100,7 @@ var main = function () {
             });
 
             $(".removeTodo").click(function (event) {
-                var index = $(this).parent().index();
+                var index = $(this).parent().parent().index();
 
                 $.ajax({
                     url: '/removetodo',

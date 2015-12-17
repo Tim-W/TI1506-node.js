@@ -172,7 +172,7 @@ app.get("/updatetodo", function (req, res) {
         var done = query["done"];
         var todoItem = todoListList[query["listId"]].getItem(query["todoId"]);
         if(description) {
-            todoItem.setDescription(description)
+            todoItem.setDescription(description);
         }
         if(priority) {
             todoItem.setPriority(priority);
