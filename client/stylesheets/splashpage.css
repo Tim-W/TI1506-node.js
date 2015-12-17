@@ -7,7 +7,6 @@ div.logo img {
 }
 
 
-
 div.splashBlock {
     background: #4DD7FA;
     width: 100%;
@@ -43,6 +42,10 @@ div.splashBlock {
     top:2px;
 }
 
+.signInButton::after {
+    content: "Sign In";
+}
+
 .signUpButton {
     margin-top: 10%;
     margin-right: 40px;
@@ -68,4 +71,8 @@ div.splashBlock {
 .signUpButton:active {
     position:relative;
     top:2px;
+}
+
+.signUpButton::before {
+    content: "Sign Up";
 }
