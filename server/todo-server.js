@@ -92,7 +92,7 @@ TodoList.prototype.updateItem = function (index, todoItem) {
  * @param done {Boolean}
  * @constructor
  */
-TodoItem = function (description, priority, date, done, Id) {
+TodoItem = function (description, priority, date, done) {
     this.description = description;
     if (priority) {
         this.priority = priority;
@@ -106,9 +106,6 @@ TodoItem = function (description, priority, date, done, Id) {
         this.done = true;
     } else {
         this.done = false;
-    }
-    if (id) {
-        this.id = id;
     }
 };
 
@@ -156,7 +153,7 @@ app.get("/getlists", function (req, res) {
                     if (todoItem["Priority"] > 1) {
                         priority = true;
                     }
-                    items.push(new TodoItem(todoItem["Title"], priority, todoItem["DueDate"], todoItem["Done"]), todoItem["Id"]);
+                    items.push(new TodoItem(todoItem["Title"], priority, todoItem["DueDate"], todoItem["Done"]));
                 });
                 todoListList.push(new TodoList(todoList["Name"], items));
                 console.log(index, todoListRows.length);
