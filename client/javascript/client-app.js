@@ -218,26 +218,27 @@ var main = function () {
     }
 
     function retrieveData() {
-        $.getJSON("/getlists", addLists)
+        $.getJSON("/getlists", function (data) {
+                $.ajax({
+                    dataType: "json",
+                    url: '/getlist',
+                    data: {
+                        listId: currentlySelectedList
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    },
+                    success: function (data) {
+                        console.log(JSON.stringify(data));
+                        addTodosToList(data);
+                    }
+                });
+                addLists(data);
+            })
             .error(function (jqXHR, textStatus) {
                 console.log("error " + textStatus);
                 console.log("incoming Text " + jqXHR.responseText);
             });
-
-        $.ajax({
-            dataType: "json",
-            url: '/getlist',
-            data: {
-                listId: currentlySelectedList
-            },
-            error: function (error) {
-                console.log(error);
-            },
-            success: function (data) {
-                console.log(JSON.stringify(data));
-                addTodosToList(data);
-            }
-        });
     }
 };
 

@@ -21,6 +21,7 @@
   "homepage": "https://github.com/Tim-W/TI1506-node.js#readme",
   "dependencies": {
     "express": "^4.13.3",
-    "mysql": "^2.10.0"
+    "mysql": "^2.10.0",
+    "step": "0.0.6"
   }
 }
