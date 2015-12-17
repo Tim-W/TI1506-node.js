@@ -163,9 +163,26 @@ app.get("/gettodo", function (req, res) {
 app.get("/updatetodo", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if(query["listId"] && query["todoId"] && query["description"] && todoListList[query["listId"]].getItem(query["todoId"])) {
-        var item = new TodoItem(query["description"], query["priority"], query["date"], query["done"]);
-        todoListList[query["listId"]].updateItem(query["todoId"], item);
+    if(query["listId"] && query["todoId"] && todoListList[query["listId"]].getItem(query["todoId"])) {
+        var listId = query["listId"];
+        var todoId = query["todoId"];
+        var description = query["description"];
+        var priority = query["priority"];
+        var date = query["date"];
+        var done = query["done"];
+        var todoItem = todoListList[query["listId"]].getItem(query["todoId"]);
+        if(description) {
+            todoItem.setDescription(description)
+        }
+        if(priority) {
+            todoItem.setPriority(priority);
+        }
+        if(date) {
+            todoItem.setDate(date);
+        }
+        if(done) {
+            todoItem.setDone(done);
+        }
         res.end("success");
     } else {
         res.end("error");

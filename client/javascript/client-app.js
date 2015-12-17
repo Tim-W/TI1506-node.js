@@ -60,17 +60,17 @@ var main = function () {
                     li.innerHTML = "<input class='done' type='checkbox' checked='checked'/>";
                     li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
                 }
-                if(items[key].date != "Invalid Date"){
+                if (items[key].date != "Invalid Date") {
                     date = new Date(items[key].date);
                     date = date.toLocaleDateString();
                 }
-                else{
-                    date="";
+                else {
+                    date = "";
                 }
 
                 priority = items[key].priority ? "priority" : "";
                 li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
-                date + "</span>  <span id='priority'>" + priority +
+                    date + "</span>  <span id='priority'>" + priority +
                     "</span>  <button class='editTodo'>Edit</button>" +
                     "<button class='removeTodo'>Remove</button></span>";
                 todoList.appendChild(li);
@@ -146,7 +146,7 @@ var main = function () {
         for (var key in todoListList) {
             li = document.createElement("li");
             if (key == currentlySelectedList) {
-                li.id='selectedList';
+                li.id = 'selectedList';
                 li.innerHTML = "<a href='#' class='todoListTitle'><span>" + todoListList[key].listName + "</span></a>" +
                     "<button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
             } else {
@@ -157,7 +157,7 @@ var main = function () {
         }
 
         li = document.createElement("li");
-        li.id='addList';
+        li.id = 'addList';
         li.innerHTML = "<a href='#'><span>+ add list</span></a>";
         listList.appendChild(li);
 
