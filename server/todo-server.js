@@ -11,7 +11,7 @@ var userId = 1;
 var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "passwd",
     database: "todo"
 });
 //Connect to the database
@@ -29,7 +29,9 @@ http.createServer(app).listen(port);
  * @param items {Array}
  * @constructor
  */
-TodoList = function (listName, items) {
+TodoList = function (dbid, listName, items) {
+    this.dbid = dbid;
+
     this.listName = listName;
     if (items) {
         this.items = items;
@@ -38,11 +40,17 @@ TodoList = function (listName, items) {
     }
 };
 
+TodoList.prototype.getdbId = function() {
+    return this.dbid;
+};
 TodoList.prototype.getItems = function () {
     return this.items;
 };
 TodoList.prototype.getListName = function () {
     return this.listName;
+};
+TodoList.prototype.setDbId = function (dbid) {
+    return this.dbid = dbid;
 };
 TodoList.prototype.setListName = function (listName) {
     return this.listName = listName;
@@ -86,13 +94,15 @@ TodoList.prototype.updateItem = function (index, todoItem) {
 
 /**
  * A TodoItem, part of a TodoList
+ * @param id {int}
  * @param description {String}
  * @param priority {Boolean}
  * @param date {Date}
  * @param done {Boolean}
  * @constructor
  */
-TodoItem = function (description, priority, date, done) {
+TodoItem = function (dbid, description, priority, date, done) {
+    this.dbid = dbid
     this.description = description;
     if (priority) {
         this.priority = priority;
@@ -104,9 +114,16 @@ TodoItem = function (description, priority, date, done) {
     }
     if (done == "true") {
         this.done = true;
-    } else {
+    } else if (done == 1){
+        this.done = true;
+    }
+    else {
         this.done = false;
     }
+};
+
+TodoItem.prototype.getdbId = function () {
+    return this.dbid;
 };
 
 TodoItem.prototype.getDescription = function () {
@@ -120,6 +137,10 @@ TodoItem.prototype.getDate = function () {
 };
 TodoItem.prototype.getDone = function () {
     return this.done;
+};
+
+TodoItem.prototype.setId = function (dbid) {
+    return this.dbid = dbid
 };
 
 TodoItem.prototype.setDescription = function (description) {
@@ -142,7 +163,7 @@ app.get("/getlists", function (req, res) {
     todoListList = [];
     //On start of application, load all todoItems and lists
     //First, load all lists
-    connection.query("SELECT * FROM ToDoList", function (err, todoListRows) {
+    connection.query("SELECT * FROM ToDoList WHERE Owner = "+userId, function (err, todoListRows) {
         var i = 0;
         todoListRows.forEach(function (todoList, index) {
             var items = [];
@@ -153,10 +174,9 @@ app.get("/getlists", function (req, res) {
                     if (todoItem["Priority"] > 1) {
                         priority = true;
                     }
-                    items.push(new TodoItem(todoItem["Title"], priority, todoItem["DueDate"], todoItem["Done"]));
+                    items.push(new TodoItem(todoItem["Id"],todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
                 });
-                todoListList.push(new TodoList(todoList["Name"], items));
-                console.log(index, todoListRows.length);
+                todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
                 //If this is the last list, send the items to the client as JSON
 
                 if(index == (todoListRows.length - 1)) {
@@ -172,8 +192,7 @@ app.get("/getlists", function (req, res) {
 app.get("/addtodo", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if (query["listId"] && query["description"] && todoListList[query["listId"]]) {
-        query["listId"]++;
+    if (query["listId"] && query["description"]) {
         var priority = 1;
         var completed = 0;
         var date = "NULL";
@@ -184,7 +203,8 @@ app.get("/addtodo", function (req, res) {
             completed = 1;
         }
         if(query["date"] != "Invalid Date") {
-            date = query["date"].toISOString().slice(0, 19).replace('T', ' ');
+            var tempDate = new Date(query["date"])
+            date = tempDate.toISOString().slice(0, 19).replace('T', ' ');
         }
         //var item = new TodoItem(query["description"], priority, query["date"], query["done"]);
         //todoListList[query["listId"]].addItem(item);
@@ -211,14 +231,14 @@ app.get("/gettodo", function (req, res) {
 app.get("/updatetodo", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if (query["listId"] && query["todoId"] && todoListList[query["listId"]].getItem(query["todoId"])) {
+    if (query["listId"] && query["todoId"]) {
         var listId = query["listId"] + 1;
         var todoId = query["todoId"];
+        var todoDBId = query["todoDBId"];
         var description = query["description"];
         var priority = query["priority"];
         var date = query["date"];
         var done = query["done"];
-        var todoItem = todoListList[query["listId"]].getItem(query["todoId"]);
         if (!description) {
             description = "No description";
         }
@@ -228,7 +248,6 @@ app.get("/updatetodo", function (req, res) {
             } else {
                 priority = 3;
             }
-            todoItem.setPriority(priority);
         } else {
             priority = 1;
         }
@@ -237,10 +256,16 @@ app.get("/updatetodo", function (req, res) {
         } else {
             date = "NULL";
         }
-        if (done) {
-            done = 1;
-        } else {
+        if (done == 'false') {
             done = 0;
+            connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"' WHERE Id = "+todoDBId);
+        }
+        else if (done == 'true') {
+            done = 1;
+            connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"' WHERE Id = "+todoDBId);
+        }
+        else{
+            connection.query("UPDATE ToDoItem SET Title = '" + description + "' WHERE Id = "+todoDBId);
         }
         res.end("success");
     } else {
@@ -252,8 +277,10 @@ app.get("/updatetodo", function (req, res) {
 app.get("/removetodo", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if (query["listId"] && query["todoId"] && todoListList[query["listId"]].getItem(query["todoId"])) {
+    if (query["listId"] && query["todoId"]) {
         todoListList[query["listId"]].delItem(query["todoId"]);
+        var todoDBId = query["todoDBId"];
+        connection.query("DELETE FROM ToDoItem WHERE Id = '"+todoDBId+"'");
         res.end("success");
     } else {
         res.end("error");
@@ -266,6 +293,7 @@ app.get("/addlist", function (req, res) {
 
     if (query["name"]) {
         var list = new TodoList(query["name"], []);
+        connection.query("INSERT INTO ToDoList (Name, CreationDate, Owner, IsPublic) VALUES ('"+ query['name'] +"', NOW(), 1, 0)");
         todoListList.push(list);
         res.end("success");
     } else {
@@ -276,21 +304,31 @@ app.get("/addlist", function (req, res) {
 //get list
 app.get("/getlist", function (req, res) {
     var query = url.parse(req.url, true).query;
-
-    if (query["listId"] && todoListList[query["listId"]]) {
-        res.json(todoListList[query["listId"]]);
+    if (query["listId"]) {
+        var items = [];
+        //Then, load all items and create relation between lists and items
+        connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = " + query['listId'], function (err, todoItemRows) {
+            todoItemRows.forEach(function (todoItem) {
+                var priority = false;
+                if (todoItem["Priority"] > 1) {
+                    priority = true;
+                }
+                items.push(new TodoItem(todoItem["Id"],todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+            });
+            //If this is the last list, send the items to the client as JSON
+            res.json(items);
+        });
     } else {
         res.end("error");
     }
-    res.end();
 });
 
 //update list
 app.get("/updatelist", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if (query["listId"] && todoListList[query["listId"]] && query["name"]) {
-        todoListList[query["listId"]].setListName(query["name"]);
+    if (query["listId"] && query["name"]) {
+        connection.query("UPDATE ToDoList SET Name = '"+query['name']+"' WHERE Id = '"+query['listId']+"'");
         res.end("success");
     } else {
         res.end("error");
@@ -301,8 +339,8 @@ app.get("/updatelist", function (req, res) {
 app.get("/removelist", function (req, res) {
     var query = url.parse(req.url, true).query;
 
-    if (query["listId"] && todoListList[query["listId"]]) {
-        todoListList.splice(query["listId"], 1);
+    if (query["listId"]) {
+        connection.query("DELETE FROM ToDoList  WHERE Id = '"+query['listId']+"'");
         res.end("success");
     } else {
         res.end("error");
