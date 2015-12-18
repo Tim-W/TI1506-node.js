@@ -23,6 +23,7 @@ function getData() {
 
     $.getJSON("/countTodoListByOwner", function (data) {
         amountListsByOwner = data;
+        $("#amountListsByOwner").empty();
         data.forEach(function (list) {
             $("#amountListsByOwner").append("<li>" + list['Name'] + ": " + list['amount'] + "</li>")
         });
@@ -75,6 +76,6 @@ function getData() {
 
 getData();
 //Get the data every second
-setTimeout(function () {
+setInterval(function () {
     getData();
 }, 1000);
