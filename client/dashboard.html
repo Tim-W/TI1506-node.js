@@ -3,10 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <script src="http://code.jquery.com/jquery-1.11.1.js" type="text/javascript"></script>
+    <script src="javascript/dashboard.js"></script>
 </head>
 <body>
 
 <div class="graph"></div>
 
+<strong>Amount of todo items in total: </strong><span id="amountTodoItems"></span>
+<hr>
+<strong>Amount of todo lists in total: </strong><span id="amountLists"></span>
+<hr>
+<h4>Amount of todo items per list: </h4>
+<ul id="amountListsByOwner"></ul>
+<hr>
+<strong>Average time taken to complete a single task: </strong><span id="avgCompletionTime"></span>
+<hr>
+<strong>Minimum time taken to complete a single task: </strong><span id="minCompletionTime"></span>
+<hr>
+<strong>Maximum time taken to complete a single task: </strong><span id="maxCompletionTime"></span>
+<hr>
+<h4>Amount of items completed/not completed</h4>
+<table border="1">
+    <tr>
+        <td style="font-weight: bold;">Completed</td>
+        <td style="font-weight: bold;">Not completed</td>
+    </tr>
+    <tr>
+        <td id="completed">
+
+        </td>
+        <td id="notCompleted">
+
+        </td>
+    </tr>
+</table>
+<hr>
+<h4>Amount of items with/without priority</h4>
+<table border="1">
+    <tr>
+        <td style="font-weight: bold;">High priority</td>
+        <td style="font-weight: bold;">Low priority</td>
+    </tr>
+    <tr>
+        <td id="priority"></td>
+        <td id="noPriority"></td>
+    </tr>
+</table>
+<hr>
 </body>
 </html>

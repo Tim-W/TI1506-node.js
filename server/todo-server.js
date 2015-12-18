@@ -365,28 +365,28 @@ app.get("/countTodoList", function (req, res) {
 });
 
 app.get("/countTodoListByOwner", function (req, res) {
-    connection.query("SELECT COUNT(*) FROM ToDoList GROUP BY Owner;", function (err, rows) {
+    connection.query("SELECT Name, COUNT(*) as amount FROM ToDoList GROUP BY Owner;", function (err, rows) {
         res.json(rows)
     })
 });
 
 //The average completion for all todoItems
 app.get("/avgCompletionTime", function (req, res) {
-    connection.query("SELECT AVG(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) FROM ToDoItem WHERE Completed = 1;", function (err, rows) {
+    connection.query("SELECT AVG(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) as avgCompletionTime FROM ToDoItem WHERE Completed = 1;", function (err, rows) {
         res.json(rows)
     })
 });
 
 //The todoItem that took the shortest to complete
 app.get("/minCompletionTime", function (req, res) {
-    connection.query("SELECT MIN(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) FROM ToDoItem WHERE Completed = 1;", function (err, rows) {
+    connection.query("SELECT MIN(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) as minCompletionTime FROM ToDoItem WHERE Completed = 1;", function (err, rows) {
         res.json(rows)
     })
 });
 
 //The todoItem that took the longest to complete
 app.get("/maxCompletionTime", function (req, res) {
-    connection.query("SELECT MAX(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) FROM ToDoItem WHERE Completed = 1;", function (err, rows) {
+    connection.query("SELECT MAX(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) as maxCompletionTime FROM ToDoItem WHERE Completed = 1;", function (err, rows) {
         res.json(rows)
     })
 });
@@ -414,7 +414,7 @@ app.get("/amountPriorityNoPriority", function (req, res) {
 
 //The average completion time of the todoItems per todoList
 app.get("/avgCompletionTimePerList", function (req, res) {
-    connection.query("SELECT ToDoListID, AVG(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) FROM ToDoItem WHERE Completed = 1 GROUP BY ToDoListID;", function (err, rows) {
+    connection.query("SELECT ToDoListID, AVG(TIMESTAMPDIFF(MINUTE, CreationDate, CompletionDate)) as avgTime FROM ToDoItem WHERE Completed = 1 GROUP BY ToDoListID;", function (err, rows) {
         res.json(rows)
     })
 })
