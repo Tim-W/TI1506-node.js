@@ -208,7 +208,7 @@ app.get("/addtodo", function (req, res) {
         }
         //var item = new TodoItem(query["description"], priority, query["date"], query["done"]);
         //todoListList[query["listId"]].addItem(item);
-        connection.query("INSERT INTO ToDoItem (Title, Priority, DueDate, Completed, ToDoListID) VALUES ('" + query["description"] + "','" + priority + "','" + date + "','" + completed + "','" + query["listId"] + "')");
+        connection.query("INSERT INTO ToDoItem (Title, CreationDate, Priority, DueDate, Completed, ToDoListID) VALUES ('" + query["description"] + "',NOW() ,'" + priority + "','" + date + "','" + completed + "','" + query["listId"] + "')");
         res.end("success");
     } else {
         res.end("error");
@@ -258,11 +258,11 @@ app.get("/updatetodo", function (req, res) {
         }
         if (done == 'false') {
             done = 0;
-            connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"' WHERE Id = "+todoDBId);
+            connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"', CompletionDate = NULL WHERE Id = "+todoDBId);
         }
         else if (done == 'true') {
             done = 1;
-            connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"' WHERE Id = "+todoDBId);
+            connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"', CompletionDate = NOW() WHERE Id = "+todoDBId);
         }
         else{
             connection.query("UPDATE ToDoItem SET Title = '" + description + "' WHERE Id = "+todoDBId);
