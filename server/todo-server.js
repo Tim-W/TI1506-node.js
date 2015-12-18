@@ -11,7 +11,7 @@ var userId = 1;
 var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "",
+    password: "passwd",
     database: "todo"
 });
 //Connect to the database

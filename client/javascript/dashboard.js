@@ -23,6 +23,7 @@ function getData() {
 
     $.getJSON("/countTodoListByOwner", function (data) {
         amountListsByOwner = data;
+        $("#amountListsByOwner").empty();
         data.forEach(function (list) {
             $("#amountListsByOwner").append("<li>" + list['Name'] + ": " + list['amount'] + "</li>")
         });
@@ -67,14 +68,34 @@ function getData() {
     });
 
     $.getJSON("/avgCompletionTimePerList", function (data) {
-        avgCompletionTimePerList = data;
-
+        var divElement, histogram, maxValue, widthHistogram, yaxis;
+        histogram = document.getElementById("histogram");
+        widthHistogram = data.length*50;
+        histogram.style.width = widthHistogram +"px";
+        histogram.innerHTML = "";
+        console.log("Element: "+ histogram);
+        maxValue = 0;
+        for(var key in data){
+            if(maxValue < data[key].avgTime){
+                maxValue = data[key].avgTime;
+            }
+        }
+        yaxis = document.getElementById("yaxis");
+        yaxis.innerHTML = maxValue;
+        for(var key in data){
+            divElement = document.createElement("div");
+            divElement.style.height = ""+Math.floor((data[key].avgTime/maxValue)*100)+"px";
+            divElement.style.width = "48px";
+            divElement.className = "bar";
+            console.dir(divElement);
+            histogram.appendChild(divElement);
+        }
         console.log("Average completiontime per list: " + JSON.stringify(data));
     });
 }
 
 getData();
 //Get the data every second
-setTimeout(function () {
+setInterval(function () {
     getData();
 }, 1000);
