@@ -3,7 +3,7 @@ var express = require("express");
 var url = require("url");
 var http = require("http");
 var mysql = require("mysql");
-var step = require("step");
+var path = require("path");
 
 var userId = 1;
 
@@ -11,7 +11,7 @@ var userId = 1;
 var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "passwd",
+    password: "",
     database: "todo"
 });
 //Connect to the database
@@ -345,4 +345,9 @@ app.get("/removelist", function (req, res) {
     } else {
         res.end("error");
     }
+});
+
+//remove list
+app.get("/dashboard", function (req, res) {
+    res.sendFile(path.join(__dirname, '/../client', 'dashboard.html'));
 });
