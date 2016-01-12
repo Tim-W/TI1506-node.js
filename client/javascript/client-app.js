@@ -69,7 +69,7 @@ var main = function () {
                 li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
                     date + "</span>  <span id='priority'>" + priority +
                     "</span>  <button class='editTodo' value='"+items[key].dbid+"'>Edit</button>" +
-                    "<button class='removeTodo' value='"+items[key].dbid+"'>Remove</button>";
+                    "<button class='removeTodo' value='"+items[key].dbid+"'>Remove</button></div>";
                 todoList.appendChild(li);
             }
 
