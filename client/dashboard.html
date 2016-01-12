@@ -5,10 +5,9 @@
     <title>Dashboard</title>
     <script src="http://code.jquery.com/jquery-1.11.1.js" type="text/javascript"></script>
     <script src="javascript/dashboard.js"></script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/dashboard.css">
 </head>
 <body>
-
-<div class="graph"></div>
 
 <strong>Amount of todo items in total: </strong><span id="amountTodoItems"></span>
 <hr>
@@ -50,6 +49,13 @@
         <td id="noPriority"></td>
     </tr>
 </table>
+<hr>
+<h4>Average completion time per todolist</h4>
+<div id="histogramFrame">
+    <div id="yaxis"></div>
+    <div id="histogram" class="graph"></div>
+    <div id="xaxis">0    Average completion time per list</div>
+</div>
 <hr>
 </body>
 </html>
