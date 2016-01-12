@@ -15,15 +15,17 @@ module.exports = function (connection, port) {
     var userId = 1;
     var todoListList = [];
     var app = express();
+
     app.use(express.static(__dirname + "/../client"));
-    http.createServer(app).listen(port);
+    app.engine('html', require('ejs').renderFile);
+    app.listen(port);
 
     //clients requests todos
     app.get("/getlists", function (req, res) {
         todoListList = [];
         //On start of application, load all todoItems and lists
         //First, load all lists
-        connection.query("SELECT * FROM ToDoList WHERE Owner = "+userId, function (err, todoListRows) {
+        connection.query("SELECT * FROM ToDoList WHERE Owner = " + userId, function (err, todoListRows) {
             todoListRows.forEach(function (todoList, index) {
                 var items = [];
                 //Then, load all items and create relation between lists and items
@@ -33,12 +35,12 @@ module.exports = function (connection, port) {
                         if (todoItem["Priority"] > 1) {
                             priority = true;
                         }
-                        items.push(new TodoItem(todoItem["Id"],todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+                        items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
                     });
                     todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
                     //If this is the last list, send the items to the client as JSON
 
-                    if(index == (todoListRows.length - 1)) {
+                    if (index == (todoListRows.length - 1)) {
                         res.json(todoListList)
                     }
                 });
@@ -55,13 +57,13 @@ module.exports = function (connection, port) {
             var priority = 1;
             var completed = 0;
             var date = "NULL";
-            if(query["priority"] == "priority") {
+            if (query["priority"] == "priority") {
                 priority = 2;
             }
-            if(query["done"]) {
+            if (query["done"]) {
                 completed = 1;
             }
-            if(query["date"] != "Invalid Date") {
+            if (query["date"] != "Invalid Date") {
                 var tempDate = new Date(query["date"]);
                 date = tempDate.toISOString().slice(0, 19).replace('T', ' ');
             }
@@ -102,7 +104,7 @@ module.exports = function (connection, port) {
                 description = "No description";
             }
             if (priority) {
-                if(priority == "false") {
+                if (priority == "false") {
                     priority = 1;
                 } else {
                     priority = 3;
@@ -117,14 +119,14 @@ module.exports = function (connection, port) {
             }
             if (done == 'false') {
                 done = 0;
-                connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"', CompletionDate = NULL WHERE Id = "+todoDBId);
+                connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '" + done + "', CompletionDate = NULL WHERE Id = " + todoDBId);
             }
             else if (done == 'true') {
                 done = 1;
-                connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '"+done+"', CompletionDate = NOW() WHERE Id = "+todoDBId);
+                connection.query("UPDATE ToDoItem SET Title = '" + description + "', Completed = '" + done + "', CompletionDate = NOW() WHERE Id = " + todoDBId);
             }
-            else{
-                connection.query("UPDATE ToDoItem SET Title = '" + description + "' WHERE Id = "+todoDBId);
+            else {
+                connection.query("UPDATE ToDoItem SET Title = '" + description + "' WHERE Id = " + todoDBId);
             }
             res.end("success");
         } else {
@@ -139,7 +141,7 @@ module.exports = function (connection, port) {
         if (query["listId"] && query["todoId"]) {
             todoListList[query["listId"]].delItem(query["todoId"]);
             var todoDBId = query["todoDBId"];
-            connection.query("DELETE FROM ToDoItem WHERE Id = '"+todoDBId+"'");
+            connection.query("DELETE FROM ToDoItem WHERE Id = '" + todoDBId + "'");
             res.end("success");
         } else {
             res.end("error");
@@ -152,7 +154,7 @@ module.exports = function (connection, port) {
 
         if (query["name"]) {
             var list = new TodoList(query["name"], []);
-            connection.query("INSERT INTO ToDoList (Name, CreationDate, Owner, IsPublic) VALUES ('"+ query['name'] +"', NOW(), 1, 0)");
+            connection.query("INSERT INTO ToDoList (Name, CreationDate, Owner, IsPublic) VALUES ('" + query['name'] + "', NOW(), 1, 0)");
             todoListList.push(list);
             res.end("success");
         } else {
@@ -172,7 +174,7 @@ module.exports = function (connection, port) {
                     if (todoItem["Priority"] > 1) {
                         priority = true;
                     }
-                    items.push(new TodoItem(todoItem["Id"],todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+                    items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
                 });
                 //If this is the last list, send the items to the client as JSON
                 res.json(items);
@@ -187,7 +189,7 @@ module.exports = function (connection, port) {
         var query = url.parse(req.url, true).query;
 
         if (query["listId"] && query["name"]) {
-            connection.query("UPDATE ToDoList SET Name = '"+query['name']+"' WHERE Id = '"+query['listId']+"'");
+            connection.query("UPDATE ToDoList SET Name = '" + query['name'] + "' WHERE Id = '" + query['listId'] + "'");
             res.end("success");
         } else {
             res.end("error");
@@ -199,16 +201,11 @@ module.exports = function (connection, port) {
         var query = url.parse(req.url, true).query;
 
         if (query["listId"]) {
-            connection.query("DELETE FROM ToDoList  WHERE Id = '"+query['listId']+"'");
+            connection.query("DELETE FROM ToDoList  WHERE Id = '" + query['listId'] + "'");
             res.end("success");
         } else {
             res.end("error");
         }
-    });
-
-//remove list
-    app.get("/dashboard", function (req, res) {
-        res.sendFile(path.join(__dirname, '/../client', 'dashboard.html'));
     });
 
     app.get("/countTodoItem", function (req, res) {
@@ -277,4 +274,26 @@ module.exports = function (connection, port) {
             res.json(rows)
         })
     });
+
+    //Static routes
+    app.get("/app", function (req, res) {
+        res.sendFile(path.join(__dirname, '/../client', 'app.html'));
+    });
+
+    app.get("/dashboard", function (req, res) {
+        res.sendFile(path.join(__dirname, '/../client', 'dashboard.html'));
+    });
+
+    //Redirect the user if the URL is spelled wrong
+    app.get("/ap*", function (req, res) {
+        res.redirect("/app");
+    });
+
+    app.get("/dash*", function (req, res) {
+        res.redirect("/dashboard");
+    });
+
+    app.get("/ejs", function (req, res) {
+        res.render("ejs");
+    })
 };

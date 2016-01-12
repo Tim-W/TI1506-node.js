@@ -1,3 +1,5 @@
+var TextSizeCookie;
+
 var main = function () {
     "use strict";
 
@@ -47,93 +49,100 @@ var main = function () {
         todoList = document.getElementById("todoList");
         todoList.innerHTML = "";
         //Only render the items on the screen if the list actually has one or more items
-            for (var key in items) {
-                li = document.createElement("div");
-                li.class = "todoListItem";
-                if (items[key]["done"] === false) {
-                    li.innerHTML = "<input class='done' type='checkbox' value='"+items[key].dbid+"'/>";
-                    li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
-                } else {
-                    li.innerHTML = "<input class='done' type='checkbox' checked='checked' value='"+items[key].dbid+"'/>";
-                    li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
-                }
-                if (items[key].date != "Invalid Date") {
-                    date = new Date(items[key].date);
-                    date = date.toLocaleDateString();
-                }
-                else {
-                    date = "";
-                }
-
-                priority = items[key].priority ? "priority" : "";
-                li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
-                    date + "</span>  <span id='priority'>" + priority +
-                    "</span>  <button class='editTodo' value='"+items[key].dbid+"'>Edit</button>" +
-                    "<button class='removeTodo' value='"+items[key].dbid+"'>Remove</button>";
-                todoList.appendChild(li);
+        for (var key in items) {
+            li = document.createElement("div");
+            li.class = "todoListItem";
+            if (items[key]["done"] === false) {
+                li.innerHTML = "<input class='done' type='checkbox' value='" + items[key].dbid + "'/>";
+                li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
+            } else {
+                li.innerHTML = "<input class='done' type='checkbox' checked='checked' value='" + items[key].dbid + "'/>";
+                li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
+            }
+            if (items[key].date != "Invalid Date") {
+                date = new Date(items[key].date);
+                date = date.toLocaleDateString();
+            }
+            else {
+                date = "";
             }
 
-            $(".editTodo").click(function () {
-                var index = $(this).parent().parent().index();
-                var newDescription = prompt("Enter new description");
+            priority = items[key].priority ? "priority" : "";
+            li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
+                date + "</span>  <span id='priority'>" + priority +
+                "</span>  <button class='editTodo' value='" + items[key].dbid + "'>Edit</button>" +
+                "<button class='removeTodo' value='" + items[key].dbid + "'>Remove</button>";
+            todoList.appendChild(li);
 
-                $.ajax({
-                    url: '/updatetodo',
-                    data: {
-                        listId: currentlySelectedList,
-                        todoId: index,
-                        todoDBId: $(this).val(),
-                        description: newDescription
-                    },
-                    success: function () {
-                        retrieveData();
-                    }
-                })
+            //Update the styles using cookies for user preference
+            if (Cookies.get("textSize")) {
+                TextSizeCookie = Cookies.get("textSize");
+                $("#todoList").find("div").css("font-size", TextSizeCookie + "px");
+                $("#todoList").find("div").css("height", TextSizeCookie * 2);
+            }
+        }
+
+        $(".editTodo").click(function () {
+            var index = $(this).parent().parent().index();
+            var newDescription = prompt("Enter new description");
+
+            $.ajax({
+                url: '/updatetodo',
+                data: {
+                    listId: currentlySelectedList,
+                    todoId: index,
+                    todoDBId: $(this).val(),
+                    description: newDescription
+                },
+                success: function () {
+                    retrieveData();
+                }
+            })
+        });
+
+        $(".removeTodo").click(function (event) {
+            var index = $(this).parent().index();
+            $.ajax({
+                url: '/removetodo',
+                data: {
+                    listId: currentlySelectedList,
+                    todoId: index,
+                    todoDBId: $(this).val()
+                },
+                success: function () {
+                    retrieveData();
+                }
+            })
+        });
+
+        $(".done").change(function (event) {
+            var index = $(this).parent().index();
+            var done = $(this).is(':checked');
+            console.log({doner: done});
+            var description = items[index]["description"];
+
+            console.log({
+                listId: currentlySelectedList,
+                todoId: index,
+                todoDBId: $(this).val(),
+                description: description,
+                done: done
             });
 
-            $(".removeTodo").click(function (event) {
-                var index = $(this).parent().index();
-                $.ajax({
-                    url: '/removetodo',
-                    data: {
-                        listId: currentlySelectedList,
-                        todoId: index,
-                        todoDBId: $(this).val()
-                    },
-                    success: function () {
-                        retrieveData();
-                    }
-                })
-            });
-
-            $(".done").change(function (event) {
-                var index = $(this).parent().index();
-                var done = $(this).is(':checked');
-                console.log({doner: done});
-                var description = items[index]["description"];
-
-                console.log({
+            $.ajax({
+                url: '/updatetodo',
+                data: {
                     listId: currentlySelectedList,
                     todoId: index,
                     todoDBId: $(this).val(),
                     description: description,
                     done: done
-                });
-
-                $.ajax({
-                    url: '/updatetodo',
-                    data: {
-                        listId: currentlySelectedList,
-                        todoId: index,
-                        todoDBId: $(this).val(),
-                        description: description,
-                        done: done
-                    },
-                    success: function () {
-                        retrieveData();
-                    }
-                })
-            });
+                },
+                success: function () {
+                    retrieveData();
+                }
+            })
+        });
     }
 
     function addLists(todoListList) {
@@ -146,7 +155,7 @@ var main = function () {
             li = document.createElement("li");
             if (todoListList[key].dbid == currentlySelectedList) {
                 li.id = 'selectedList';
-                li.innerHTML = "<a href='#' data-id='"+ todoListList[key].dbid +"' class='todoListTitle'><span>" + todoListList[key].listName + "</span></a>" +
+                li.innerHTML = "<a href='#' data-id='" + todoListList[key].dbid + "' class='todoListTitle'><span>" + todoListList[key].listName + "</span></a>" +
                     "<button class='editList'>Edit</button> <button class='removeList'>Remove</button>";
             } else {
                 li.innerHTML = "<a href='#' data-id='" + todoListList[key].dbid + "' class='todoListTitle'><span>" + todoListList[key].listName + "</span></a>" +
@@ -162,7 +171,7 @@ var main = function () {
 
         $(".todoListTitle").click(function (event) {
             event.preventDefault();
-            console.log("data-id: "+$(this).attr("data-id"));
+            console.log("data-id: " + $(this).attr("data-id"));
             currentlySelectedList = $(this).attr("data-id");
             retrieveData();
         });
@@ -174,7 +183,7 @@ var main = function () {
             $.ajax({
                 url: '/addlist',
                 data: {
-                    listId: index ,
+                    listId: index,
                     name: newListName
                 },
                 success: function () {
