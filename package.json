@@ -2,9 +2,9 @@
   "name": "justdoit",
   "version": "1.0.0",
   "description": "A todo application",
-  "main": "index.js",
+  "main": "server/server.js",
   "scripts": {
-    "test": "dunno"
+    "start": "node server/server.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Tim-W/TI1506-node.js#readme",
   "dependencies": {
+    "ejs": "^2.3.4",
     "express": "^4.13.3",
     "mysql": "^2.10.0",
     "step": "0.0.6"
