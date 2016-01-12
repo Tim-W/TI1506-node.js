@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>JustDoIt!</title>
+    <script src="http://code.jquery.com/jquery-1.11.1.js" type="text/javascript"></script>
+    <script src="javascript/client-app.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/overview.css">
+</head>
+
+<body>
+<div id="header">
+    <img src="icons/logo40.png" alt="JustDoIt">
+    <h1>JustDoIt</h1>
+</div>
+<main>
+
+    <div id="content">
+        <div class="sidebar">
+            <ul id="list-list">
+                <% list_array.forEach(function(todoList, index) {%>
+                <%if (index == 0) { %>
+                    <li><a href='#' data-id='<%todoList.dbid%>' class='todoListTitle'><span><%todoList.listName%></span></a>
+                    <button class='editList'>Edit</button> <button class='removeList'>Remove</button></li>
+                <% } else{ %>
+                    <li><a href='#' data-id='<%todoList.dbid%>' class='todoListTitle'><span><%todoList.listName%></span></a>
+                    <button class='editList' value='" + todoListList[key].dbid + "'>Edit</button> <button class='removeList' value='" + todoListList[key].dbid + "'>Remove</button></li>
+                <% }}) %>
+                <li><a href='#'><span>+ add list</span></a></li>
+            </ul>
+        </div>
+        <div class="maincontent">
+            <div id="newTodoListItemForm">
+                <form action="/addtodo" id="newTodoForm">
+                    new todo:<input type="text" name="description" id="todoFormText" placeholder="description" required>
+                    duedate:<input type="text" name="date" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" placeholder="YYYY-MM-DD">
+                    <div class="rightThingies">
+                        priority:<input type="checkbox" name="priority" value="priority">
+                        <input type="submit">
+                    </div>
+                </form>
+            </div>
+            <div id="todoList">
+                <%
+                todo_array.forEach(function(todo) {%>
+                <div class="todoListItem">
+                    <%if (todo.done == false) { %>
+                        <input class="done" type="checkbox" value="<%=todo.dbid%>"/>
+                        <span class="description"><%=todo.description%></span>
+                    <% } else{ %>
+                        <input class="done" type="checkbox" checked="checked" value="<%=todo.dbid%>"/>
+                        <span class="description" style="text-decoration: line-through"><%=todo.description%></span>
+                    <% } %>
+                    <div class='rightThingies'>
+                        <span style='font-style: italic;'><%todo.date%></span>
+                        <span id='priority'><% todo.priority ? "priority" : "" %></span>
+                        <button class='editTodo' value='<%=todo.dbid%>'>Edit</button>
+                        <button class='removeTodo' value='<%=todo.dbid%>'>Remove</button>
+                  <% })%>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

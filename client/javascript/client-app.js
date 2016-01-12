@@ -49,24 +49,31 @@ var main = function () {
         todoList = document.getElementById("todoList");
         todoList.innerHTML = "";
         //Only render the items on the screen if the list actually has one or more items
-        for (var key in items) {
-            li = document.createElement("div");
-            li.class = "todoListItem";
-            if (items[key]["done"] === false) {
-                li.innerHTML = "<input class='done' type='checkbox' value='" + items[key].dbid + "'/>";
-                li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
-            } else {
-                li.innerHTML = "<input class='done' type='checkbox' checked='checked' value='" + items[key].dbid + "'/>";
-                li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
-            }
-            if (items[key].date != "Invalid Date") {
-                date = new Date(items[key].date);
-                date = date.toLocaleDateString();
-            }
-            else {
-                date = "";
-            }
+            for (var key in items) {
+                li = document.createElement("div");
+                li.class = "todoListItem";
+                if (items[key]["done"] === false) {
+                    li.innerHTML = "<input class='done' type='checkbox' value='"+items[key].dbid+"'/>";
+                    li.innerHTML += "<span class='description'>" + items[key]["description"] + "</span>";
+                } else {
+                    li.innerHTML = "<input class='done' type='checkbox' checked='checked' value='"+items[key].dbid+"'/>";
+                    li.innerHTML += "<span class='description' style='text-decoration: line-through'>" + items[key].description + "</span>";
+                }
+                if (items[key].date != "Invalid Date") {
+                    date = new Date(items[key].date);
+                    date = date.toLocaleDateString();
+                }
+                else {
+                    date = "";
+                }
 
+                priority = items[key].priority ? "priority" : "";
+                li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
+                    date + "</span>  <span id='priority'>" + priority +
+                    "</span>  <button class='editTodo' value='"+items[key].dbid+"'>Edit</button>" +
+                    "<button class='removeTodo' value='"+items[key].dbid+"'>Remove</button></div>";
+                todoList.appendChild(li);
+            }
             priority = items[key].priority ? "priority" : "";
             li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
                 date + "</span>  <span id='priority'>" + priority +

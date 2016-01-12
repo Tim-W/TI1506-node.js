@@ -20,6 +20,31 @@ module.exports = function (connection, port) {
     app.engine('html', require('ejs').renderFile);
     app.listen(port);
 
+    app.set("views", __dirname + "/../client");
+    app.set("view engine", "ejs");
+
+    app.get("/apptest", function (req, res) {
+        var items = [];
+        var todoListList = [];
+        connection.query("SELECT * FROM ToDoList WHERE Owner = "+userId, function (err, todoListRows) {
+            todoListRows.forEach(function (todoList, index) {
+                connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = 1", function (err, todoItemRows) {
+                    todoItemRows.forEach(function (todoItem) {
+                        var priority = false;
+                        if (todoItem["Priority"] > 1) {
+                            priority = true;
+                        }
+                        items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+                    });
+                    todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
+                });
+            });
+            res.render("app", { list_array: todoListList, todo_array: items });
+        });
+
+
+    });
+
     //clients requests todos
     app.get("/getlists", function (req, res) {
         todoListList = [];
