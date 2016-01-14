@@ -241,7 +241,7 @@ module.exports = function (connection, port) {
         var query = url.parse(req.url, true).query;
 
         if (query["listId"] && query["todoId"]) {
-            todoListList[query["listId"]].delItem(query["todoId"]);
+            //todoListList[query["listId"]].delItem(query["todoId"]);
             var todoDBId = query["todoDBId"];
             connection.query("DELETE FROM ToDoItem WHERE Id = '" + todoDBId + "'");
             res.end("success");
