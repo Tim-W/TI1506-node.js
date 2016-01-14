@@ -1,10 +1,25 @@
 var TextSizeCookie;
-var currentlySelectedList = 1;
+var currentlySelectedList = null;
 
 var main = function () {
     "use strict";
 
+    function getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
 
+        var params = {},
+            tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+
+        return params;
+    }
+
+    var query = getQueryParams(document.location.search);
+    var userId = parseInt(query.userId);
     //Load items on page load
     var newTodoForm, updateForm, todoFormText;
     retrieveData();
@@ -15,6 +30,7 @@ var main = function () {
         $.ajax({
             url: newTodoForm.attr('action'),
             data: {
+                userId: userId,
                 description: $('input[name="description"]').val(),
                 date: new Date($('input[name="date"]').val()),
                 priority: $('input[name="priority"]:checked').val(),
@@ -96,6 +112,7 @@ var main = function () {
         $.ajax({
             url: '/updatetodo',
             data: {
+                userId: userId,
                 listId: currentlySelectedList,
                 todoId: index,
                 todoDBId: $(this).val(),
@@ -112,6 +129,7 @@ var main = function () {
         $.ajax({
             url: '/removetodo',
             data: {
+                userId: userId,
                 listId: currentlySelectedList,
                 todoId: index,
                 todoDBId: $(this).val()
@@ -139,6 +157,7 @@ var main = function () {
         $.ajax({
             url: '/updatetodo',
             data: {
+                userId: userId,
                 listId: currentlySelectedList,
                 todoId: index,
                 todoDBId: $(this).val(),
@@ -189,6 +208,7 @@ var main = function () {
             $.ajax({
                 url: '/addlist',
                 data: {
+                    userId: userId,
                     listId: index,
                     name: newListName
                 },
@@ -207,6 +227,7 @@ var main = function () {
             $.ajax({
                 url: '/updatelist',
                 data: {
+                    userId: userId,
                     listId: index,
                     name: newListName
                 },
@@ -223,6 +244,7 @@ var main = function () {
             $.ajax({
                 url: '/removelist',
                 data: {
+                    userId: userId,
                     listId: index
                 },
                 success: function () {
@@ -233,11 +255,18 @@ var main = function () {
     }
 
     function retrieveData() {
-        $.getJSON("/getlists", function (data) {
+        $.ajax({
+            dataType: 'json',
+            url: '/getlists',
+            data: {
+                userId: userId
+            },
+            success: function (data) {
                 $.ajax({
                     dataType: "json",
                     url: '/getlist',
                     data: {
+                        userId: userId,
                         listId: currentlySelectedList
                     },
                     error: function (error) {
@@ -249,11 +278,11 @@ var main = function () {
                     }
                 });
                 addLists(data);
-            })
-            .error(function (jqXHR, textStatus) {
+            }, error: function (jqXHR, textStatus) {
                 console.log("error " + textStatus);
                 console.log("incoming Text " + jqXHR.responseText);
-            });
+            }
+        });
     }
 };
 

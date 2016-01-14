@@ -29,21 +29,23 @@ module.exports = function (connection, port) {
             enableProof: false,
             profileFields: ['id', 'email', 'gender', 'link', 'locale', 'name', 'timezone', 'updated_time', 'verified', 'photos', 'likes']
         },
-        function(accessToken, refreshToken, profile, done) {
+        function (accessToken, refreshToken, profile, done) {
             process.nextTick(function () {
                 console.log(profile);
-                connection.query("INSERT INTO User(Id, Name, Email, Username, Password) VALUES ('" + profile.id + "', '" + profile.displayName + "', 'default email', 'default username', 'default password')", function () {
-                    return done(null, profile);
+                connection.query("INSERT INTO ToDoList(Name, Owner, CreationDate, IsPublic) VALUES ('Inbox', '" + profile.id + "', NOW(), 0)", function () {
+                    connection.query("INSERT INTO User(Id, Name, Email, Username, Password) VALUES ('" + profile.id + "', '" + profile.displayName + "', 'default email', 'default username', 'default password')", function () {
+                        return done(null, profile);
+                    });
                 });
             });
         }
     ));
 
-    passport.serializeUser(function(user, done) {
+    passport.serializeUser(function (user, done) {
         done(null, user);
     });
 
-    passport.deserializeUser(function(obj, done) {
+    passport.deserializeUser(function (obj, done) {
         done(null, obj);
     });
 
@@ -53,8 +55,8 @@ module.exports = function (connection, port) {
         });
 
     app.get('/auth/facebook/callback',
-        passport.authenticate('facebook', { failureRedirect: '/' }),
-        function(req, res) {
+        passport.authenticate('facebook', {failureRedirect: '/'}),
+        function (req, res) {
             // Successful authentication, redirect home.
             res.redirect('/app?userId=' + req.user.id);
         });
@@ -71,60 +73,68 @@ module.exports = function (connection, port) {
     app.set("view engine", "ejs");
 
     app.get("/apptest", function (req, res) {
+        var query = url.parse(req.url, true).query;
         var items = [];
         var todoListList = [];
         var todoListID;
-        connection.query("SELECT * FROM ToDoList WHERE Owner = "+userId, function (err, todoListRows) {
-            todoListID = todoListRows[0]["Id"];
-            todoListRows.forEach(function (todoList, index) {
-                todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
-                connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = " + todoListID + "", function (err, todoItemRows) {
-                    todoItemRows.forEach(function (todoItem, index2) {
-                        var priority = false;
+        connection.query("SELECT * FROM ToDoList WHERE Owner = " + query["userId"], function (err, todoListRows) {
+            if (todoListRows[0]) {
+                todoListID = todoListRows[0]["Id"];
+                todoListRows.forEach(function (todoList, index) {
+                    todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
+                    connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = " + todoListID + "", function (err, todoItemRows) {
+                        todoItemRows.forEach(function (todoItem, index2) {
+                            var priority = false;
 
-                        if (todoItem["Priority"] > 1) {
-                            priority = true;
-                        }
+                            if (todoItem["Priority"] > 1) {
+                                priority = true;
+                            }
 
-                        if(index==0){
-                            items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
-                        }
+                            if (index == 0) {
+                                items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+                            }
 
-                        //send data
-                        if (index == todoListRows.length - 1 && index2 == todoItemRows.length - 1) {
-                            res.render("app", { list_array: todoListList, todo_array: items });
-                        }
+                            //send data
+                            if (index == todoListRows.length - 1 && index2 == todoItemRows.length - 1) {
+                                res.render("app", {list_array: todoListList, todo_array: items});
+                            }
+                        });
                     });
                 });
-            });
+            }
         });
     });
 
     //clients requests todos
     app.get("/getlists", function (req, res) {
+        var query = url.parse(req.url, true).query;
+        console.log(query);
         todoListList = [];
         //On start of application, load all todoItems and lists
         //First, load all lists
-        connection.query("SELECT * FROM ToDoList WHERE Owner = " + userId, function (err, todoListRows) {
-            todoListRows.forEach(function (todoList, index) {
-                var items = [];
-                //Then, load all items and create relation between lists and items
-                connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = " + todoList["Id"], function (err, todoItemRows) {
-                    todoItemRows.forEach(function (todoItem) {
-                        var priority = false;
-                        if (todoItem["Priority"] > 1) {
-                            priority = true;
-                        }
-                        items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
-                    });
-                    todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
-                    //If this is the last list, send the items to the client as JSON
+        connection.query("SELECT * FROM ToDoList WHERE Owner = " + query['userId'], function (err, todoListRows) {
+            if (todoListRows) {
 
-                    if (index == (todoListRows.length - 1)) {
-                        res.json(todoListList)
-                    }
+                todoListRows.forEach(function (todoList, index) {
+                    var items = [];
+                    //Then, load all items and create relation between lists and items
+                    connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = " + todoList["Id"], function (err, todoItemRows) {
+                        todoItemRows.forEach(function (todoItem) {
+                            var priority = false;
+                            if (todoItem["Priority"] > 1) {
+                                priority = true;
+                            }
+                            items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+                        });
+                        todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
+                        //If this is the last list, send the items to the client as JSON
+
+                        if (index == (todoListRows.length - 1)) {
+                            res.json(todoListList)
+                        }
+                    });
                 });
-            });
+            }
         });
 
     });
@@ -231,10 +241,11 @@ module.exports = function (connection, port) {
 //add list
     app.get("/addlist", function (req, res) {
         var query = url.parse(req.url, true).query;
+        var userId = query.userId;
 
         if (query["name"]) {
             var list = new TodoList(query["name"], []);
-            connection.query("INSERT INTO ToDoList (Name, CreationDate, Owner, IsPublic) VALUES ('" + query['name'] + "', NOW(), 1, 0)");
+            connection.query("INSERT INTO ToDoList (Name, CreationDate, Owner, IsPublic) VALUES ('" + query['name'] + "', NOW(), '" + query['userId'] + "', 0)");
             todoListList.push(list);
             res.end("success");
         } else {
@@ -245,6 +256,7 @@ module.exports = function (connection, port) {
 //get list
     app.get("/getlist", function (req, res) {
         var query = url.parse(req.url, true).query;
+
         if (query["listId"]) {
             var items = [];
             //Then, load all items and create relation between lists and items
@@ -370,19 +382,14 @@ module.exports = function (connection, port) {
     //    scope: 'https://www.googleapis.com/auth/plus.login'
     //}));
 
-    app.get("/dashboard", function (req, res) {
-        res.sendFile(path.join(__dirname, '/../client', 'dashboard.html'));
-    });
-
     //Redirect the user if the URL is spelled wrong
     app.get("/ap*", function (req, res, next) {
         var userID = url.parse(req.url, true).query.userId;
-        console.log(userID);
         res.sendFile(path.join(__dirname, '/../client', 'app.html'));
     });
 
     app.get("/dash*", function (req, res) {
-        res.redirect("/dashboard");
+        res.sendFile(path.join(__dirname, '/../client', 'dashboard.html'));
     });
 
     app.get("/ejs", function (req, res) {
