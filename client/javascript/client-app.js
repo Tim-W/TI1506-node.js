@@ -89,6 +89,40 @@ var main = function () {
                 "</span>  <button class='editTodo' value='" + items[key].dbid + "'>Edit</button>" +
                 "<button class='removeTodo' value='" + items[key].dbid + "'>Remove</button></div>";
             todoList.appendChild(li);
+
+            $(".editTodo").click(function () {
+                var index = $(this).parent().parent().index();
+                console.log(index);
+                var newDescription = prompt("Enter new description");
+
+                $.ajax({
+                    url: '/updatetodo',
+                    data: {
+                        listId: currentlySelectedList,
+                        todoId: index,
+                        todoDBId: $(this).val(),
+                        description: newDescription
+                    },
+                    success: function () {
+                        retrieveData();
+                    }
+                })
+            });
+
+            $(".removeTodo").click(function (event) {
+                var index = $(this).parent().index();
+                $.ajax({
+                    url: '/removetodo',
+                    data: {
+                        listId: currentlySelectedList,
+                        todoId: index,
+                        todoDBId: $(this).val()
+                    },
+                    success: function () {
+                        retrieveData();
+                    }
+                })
+            });
         }
         //priority = items[key].priority ? "priority" : "";
         //li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
@@ -104,40 +138,6 @@ var main = function () {
             $("#todoList").find("div").css("height", TextSizeCookie * 2);
         }
     }
-
-    $(".editTodo").click(function () {
-        var index = $(this).parent().parent().index();
-        console.log(index);
-        var newDescription = prompt("Enter new description");
-
-        $.ajax({
-            url: '/updatetodo',
-            data: {
-                listId: currentlySelectedList,
-                todoId: index,
-                todoDBId: $(this).val(),
-                description: newDescription
-            },
-            success: function () {
-                retrieveData();
-            }
-        })
-    });
-
-    $(".removeTodo").click(function (event) {
-        var index = $(this).parent().index();
-        $.ajax({
-            url: '/removetodo',
-            data: {
-                listId: currentlySelectedList,
-                todoId: index,
-                todoDBId: $(this).val()
-            },
-            success: function () {
-                retrieveData();
-            }
-        })
-    });
 
     $(".done").change(function (event) {
         var index = $(this).parent().index();
