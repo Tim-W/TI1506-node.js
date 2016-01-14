@@ -21,11 +21,13 @@
             <ul id="list-list">
                 <% list_array.forEach(function(todoList, index) {%>
                 <%if (index == 0) { %>
-                    <li><a href='#' data-id='<%todoList.dbid%>' class='todoListTitle'><span><%todoList.listName%></span></a>
-                    <button class='editList'>Edit</button> <button class='removeList'>Remove</button></li>
+                    <li id="selectedList"><a href='#' data-id='<%=todoList.dbid%>' class='todoListTitle'><span><%=todoList.listName%></span></a>
+                    <button class='editList' value='<%=todoList.dbid%>'>Edit</button>
+                    <button class='removeList' value='<%=todoList.dbid%>'>Remove</button></li>
                 <% } else{ %>
-                    <li><a href='#' data-id='<%todoList.dbid%>' class='todoListTitle'><span><%todoList.listName%></span></a>
-                    <button class='editList' value='" + todoListList[key].dbid + "'>Edit</button> <button class='removeList' value='" + todoListList[key].dbid + "'>Remove</button></li>
+                    <li><a href='#' data-id='<%=todoList.dbid%>' class='todoListTitle'><span><%=todoList.listName%></span></a>
+                    <button class='editList' value='<%=todoList.dbid%>'>Edit</button>
+                    <button class='removeList' value='<%=todoList.dbid%>'>Remove</button></li>
                 <% }}) %>
                 <li><a href='#'><span>+ add list</span></a></li>
             </ul>
@@ -44,20 +46,22 @@
             <div id="todoList">
                 <%
                 todo_array.forEach(function(todo) {%>
-                <div class="todoListItem">
-                    <%if (todo.done == false) { %>
-                        <input class="done" type="checkbox" value="<%=todo.dbid%>"/>
-                        <span class="description"><%=todo.description%></span>
-                    <% } else{ %>
-                        <input class="done" type="checkbox" checked="checked" value="<%=todo.dbid%>"/>
-                        <span class="description" style="text-decoration: line-through"><%=todo.description%></span>
-                    <% } %>
-                    <div class='rightThingies'>
-                        <span style='font-style: italic;'><%todo.date%></span>
-                        <span id='priority'><% todo.priority ? "priority" : "" %></span>
-                        <button class='editTodo' value='<%=todo.dbid%>'>Edit</button>
-                        <button class='removeTodo' value='<%=todo.dbid%>'>Remove</button>
-                  <% })%>
+                    <div>
+                        <%if (todo.done == false) { %>
+                            <input class="done" type="checkbox" value="<%=todo.dbid%>"/>
+                            <span class="description"><%=todo.description%></span>
+                        <% } else{ %>
+                            <input class="done" type="checkbox" checked="checked" value="<%=todo.dbid%>"/>
+                            <span class="description" style="text-decoration: line-through"><%=todo.description%></span>
+                        <% } %>
+                        <div class='rightThingies'>
+                            <span style='font-style: italic;'><%todo.date%></span>
+                            <span id='priority'><% todo.priority ? "priority" : "" %></span>
+                            <button class='editTodo' value='<%=todo.dbid%>'>Edit</button>
+                            <button class='removeTodo' value='<%=todo.dbid%>'>Remove</button>
+                        </div>
+                    </div>
+                <% })%>
             </div>
         </div>
     </div>

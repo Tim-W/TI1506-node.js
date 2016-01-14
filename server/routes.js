@@ -24,23 +24,31 @@ module.exports = function (connection, port) {
     app.get("/apptest", function (req, res) {
         var items = [];
         var todoListList = [];
+        var todoListID;
         connection.query("SELECT * FROM ToDoList WHERE Owner = "+userId, function (err, todoListRows) {
+            todoListID = todoListRows[0]["Id"];
             todoListRows.forEach(function (todoList, index) {
-                connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = 1", function (err, todoItemRows) {
-                    todoItemRows.forEach(function (todoItem) {
+                todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
+                connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = " + todoListID + "", function (err, todoItemRows) {
+                    todoItemRows.forEach(function (todoItem, index2) {
                         var priority = false;
+
                         if (todoItem["Priority"] > 1) {
                             priority = true;
                         }
-                        items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+
+                        if(index==0){
+                            items.push(new TodoItem(todoItem["Id"], todoItem["Title"], priority, todoItem["DueDate"], todoItem["Completed"]));
+                        }
+
+                        //send data
+                        if (index == todoListRows.length - 1 && index2 == todoItemRows.length - 1) {
+                            res.render("app", { list_array: todoListList, todo_array: items });
+                        }
                     });
-                    todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
                 });
             });
-            res.render("app", { list_array: todoListList, todo_array: items });
         });
-
-
     });
 
     //clients requests todos
