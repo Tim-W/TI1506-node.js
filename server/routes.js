@@ -178,6 +178,18 @@ module.exports = function (connection, port) {
         }
     });
 
+    app.get("/getcsl", function(req, res) {
+        var query = url.parse(req.url, true).query;
+        console.log(query);
+        var todoListId;
+        connection.query("SELECT * FROM ToDoList WHERE Owner = " + query["userId"], function (err, todoListRows) {
+            if (todoListRows[0]) {
+                todoListId = todoListRows[0]["Id"];
+                res.json({currentlySelectedList:  todoListId});
+            }
+        });
+    });
+
 //update item
     app.get("/updatetodo", function (req, res) {
         var query = url.parse(req.url, true).query;

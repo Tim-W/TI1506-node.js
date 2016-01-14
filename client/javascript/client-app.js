@@ -20,8 +20,11 @@ var main = function () {
 
     var query = getQueryParams(document.location.search);
     var userId = parseInt(query.userId);
+    console.log("userid: "+userId);
     //Load items on page load
     var newTodoForm, updateForm, todoFormText;
+    retrieveCLS();
+
     retrieveData();
 
     //On form submit, post the new item
@@ -254,6 +257,7 @@ var main = function () {
     }
 
     function retrieveData() {
+        console.log("userid while retrieving lists: "+userId);
         $.ajax({
             dataType: 'json',
             url: '/getlists',
@@ -261,6 +265,8 @@ var main = function () {
                 userId: userId
             },
             success: function (data) {
+                console.log("userid while retrieving items: "+userId);
+                console.log("selectedlist while retrieving items: "+currentlySelectedList);
                 $.ajax({
                     dataType: "json",
                     url: '/getlist',
@@ -280,6 +286,19 @@ var main = function () {
             }, error: function (jqXHR, textStatus) {
                 console.log("error " + textStatus);
                 console.log("incoming Text " + jqXHR.responseText);
+            }
+        });
+    }
+    function retrieveCLS() {
+        console.log("userid while retrieving lists: "+userId);
+        $.ajax({
+            dataType: 'json',
+            url: '/getcsl',
+            data: {
+                userId: userId
+            },
+            success: function (data) {
+                currentlySelectedList = data.currentlySelectedList;
             }
         });
     }
