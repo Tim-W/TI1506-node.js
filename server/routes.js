@@ -4,7 +4,8 @@ var TodoItem = require("./TodoItem");
 var TodoList = require("./TodoList");
 var path = require("path");
 var url = require("url");
-
+var passport = require("passport");
+var FacebookStrategy = require('passport-facebook').Strategy
 /**
  * Creates the routes
  * @param connection - the MySQL connection to the database
@@ -17,6 +18,52 @@ module.exports = function (connection, port) {
     var app = express();
 
     app.use(express.static(__dirname + "/../client"));
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    passport.use(new FacebookStrategy({
+            clientID: "1009972232409748",
+            clientSecret: "6e7f19b58ac188c5d54274420c2e5772",
+            callbackURL: "http://localhost:3000/auth/facebook/callback",
+            enableProof: false,
+            profileFields: ['id', 'email', 'gender', 'link', 'locale', 'name', 'timezone', 'updated_time', 'verified', 'photos', 'likes']
+        },
+        function(accessToken, refreshToken, profile, done) {
+            process.nextTick(function () {
+                console.log(profile);
+                connection.query("INSERT INTO User(Id, Name, Email, Username, Password) VALUES ('" + profile.id + "', '" + profile.displayName + "', 'default email', 'default username', 'default password')", function () {
+                    return done(null, profile);
+                });
+            });
+        }
+    ));
+
+    passport.serializeUser(function(user, done) {
+        done(null, user);
+    });
+
+    passport.deserializeUser(function(obj, done) {
+        done(null, obj);
+    });
+
+    app.get('/auth/facebook',
+        passport.authenticate('facebook'), function (req, res) {
+
+        });
+
+    app.get('/auth/facebook/callback',
+        passport.authenticate('facebook', { failureRedirect: '/' }),
+        function(req, res) {
+            // Successful authentication, redirect home.
+            res.redirect('/app?userId=' + req.user.id);
+        });
+
+    app.get('/logout', function (req, res) {
+        req.logout();
+        res.redirect('/');
+    });
+
     app.engine('html', require('ejs').renderFile);
     app.listen(port);
 
@@ -26,7 +73,7 @@ module.exports = function (connection, port) {
     app.get("/apptest", function (req, res) {
         var items = [];
         var todoListList = [];
-        connection.query("SELECT * FROM ToDoList WHERE Owner = "+userId, function (err, todoListRows) {
+        connection.query("SELECT * FROM ToDoList WHERE Owner = " + userId, function (err, todoListRows) {
             todoListRows.forEach(function (todoList, index) {
                 connection.query("SELECT Id, Title, DueDate, Completed, Priority FROM ToDoItem WHERE TodoListID = 1", function (err, todoItemRows) {
                     todoItemRows.forEach(function (todoItem) {
@@ -39,7 +86,7 @@ module.exports = function (connection, port) {
                     todoListList.push(new TodoList(todoList["Id"], todoList["Name"], items));
                 });
             });
-            res.render("app", { list_array: todoListList, todo_array: items });
+            res.render("app", {list_array: todoListList, todo_array: items});
         });
 
 
@@ -300,18 +347,30 @@ module.exports = function (connection, port) {
         })
     });
 
-    //Static routes
-    app.get("/app", function (req, res) {
-        res.sendFile(path.join(__dirname, '/../client', 'app.html'));
-    });
+    ////Static routes
+    //app.get("/app", passport.authenticate('google', {failureRedirect: '/', scope: 'https://www.googleapis.com/auth/plus.login'}), function (req, res) {
+    //    res.sendFile(path.join(__dirname, '/../client', 'app.html'));
+    //});
+
+    //app.get('', function(req, res, next) {
+    //    if (!req.user) { // Not already logged in, probably okay to try to hit the oauth provider
+    //        return next();
+    //    }
+    //    res.redirect('/');
+    //    //res.sendFile(path.join(__dirname, '/../client', 'app.html'));
+    //}, passport.authenticate('google', {
+    //    scope: 'https://www.googleapis.com/auth/plus.login'
+    //}));
 
     app.get("/dashboard", function (req, res) {
         res.sendFile(path.join(__dirname, '/../client', 'dashboard.html'));
     });
 
     //Redirect the user if the URL is spelled wrong
-    app.get("/ap*", function (req, res) {
-        res.redirect("/app");
+    app.get("/ap*", function (req, res, next) {
+        var userID = url.parse(req.url, true).query.userId;
+        console.log(userID);
+        res.sendFile(path.join(__dirname, '/../client', 'app.html'));
     });
 
     app.get("/dash*", function (req, res) {
@@ -320,5 +379,5 @@ module.exports = function (connection, port) {
 
     app.get("/ejs", function (req, res) {
         res.render("ejs");
-    })
+    });
 };
