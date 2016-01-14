@@ -90,12 +90,12 @@ var main = function () {
                 "<button class='removeTodo' value='" + items[key].dbid + "'>Remove</button></div>";
             todoList.appendChild(li);
         }
-        priority = items[key].priority ? "priority" : "";
-        li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
-            date + "</span>  <span id='priority'>" + priority +
-            "</span>  <button class='editTodo' value='" + items[key].dbid + "'>Edit</button>" +
-            "<button class='removeTodo' value='" + items[key].dbid + "'>Remove</button>";
-        todoList.appendChild(li);
+        //priority = items[key].priority ? "priority" : "";
+        //li.innerHTML += "<div class='rightThingies'><span style='font-style: italic;'>" +
+        //    date + "</span>  <span id='priority'>" + priority +
+        //    "</span>  <button class='editTodo' value='" + items[key].dbid + "'>Edit</button>" +
+        //    "<button class='removeTodo' value='" + items[key].dbid + "'>Remove</button>";
+        //todoList.appendChild(li);
 
         //Update the styles using cookies for user preference
         if (Cookies.get("textSize")) {
@@ -107,12 +107,12 @@ var main = function () {
 
     $(".editTodo").click(function () {
         var index = $(this).parent().parent().index();
+        console.log(index);
         var newDescription = prompt("Enter new description");
 
         $.ajax({
             url: '/updatetodo',
             data: {
-                userId: userId,
                 listId: currentlySelectedList,
                 todoId: index,
                 todoDBId: $(this).val(),
@@ -129,7 +129,6 @@ var main = function () {
         $.ajax({
             url: '/removetodo',
             data: {
-                userId: userId,
                 listId: currentlySelectedList,
                 todoId: index,
                 todoDBId: $(this).val()
