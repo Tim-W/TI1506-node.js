@@ -2,6 +2,6 @@
 module.exports.mysqlConfig = {
     host: "localhost",
     user: "root",
-    password: "",
+    password: "passwd",
     database: "todo"
 };
